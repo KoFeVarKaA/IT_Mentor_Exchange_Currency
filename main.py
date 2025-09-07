@@ -1,6 +1,7 @@
-from src.dao.dao_currencies import DaoCurrencies
-from src.dao.dao_rates import DaoRates
+from src.dao.dao_bd import DaoBD
 
-DaoRates.create_table()
-DaoCurrencies.create_table()
-print("succses")
+
+# DaoBD.delete_all_tables()
+# DaoBD.create_tables()
+
+print("Succses")

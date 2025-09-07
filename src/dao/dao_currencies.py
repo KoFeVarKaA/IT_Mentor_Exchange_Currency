@@ -8,7 +8,7 @@ class DaoCurrencies():
     def create_table():
         with sqlite3.connect('bd.sql') as conn:
             cur = conn.cursor()
-            cur.execute("""CREATE TABLE currency(
+            cur.execute("""CREATE TABLE currencies(
                 id INT AUTO_INCREMENT PRIMARY KEY, 
                 code VARCHAR(30),
                 fullname VARCHAR(30),

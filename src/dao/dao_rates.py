@@ -12,6 +12,6 @@ class DaoRates():
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 basecurrenceid VARCHAR(30),
                 targetcurrenceid VARCHAR(30),
-                rate VARCHAR(5)                
+                rate DECIMAL(6)               
                 );
                 """)
