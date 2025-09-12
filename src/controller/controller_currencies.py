@@ -17,5 +17,5 @@ class CurrenciesController(BaseController):
         dto = data.to_dto()
         result = service.post_currencies(dto)
         if isinstance(result, Err):
-            raise Responses.not_found_err(message=result.value)
+            raise Responses.initial_err(message=result.value)
         return Responses.success(message=f"Валюта с id {result.value} успешно создана")

@@ -9,7 +9,7 @@ class DaoRates():
         with sqlite3.connect('bd.sql') as conn:
             cur = conn.cursor()
             cur.execute("""CREATE TABLE rates(
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 basecurrenceid VARCHAR(30),
                 targetcurrenceid VARCHAR(30),
                 rate DECIMAL(6)               

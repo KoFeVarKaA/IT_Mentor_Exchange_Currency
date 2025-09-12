@@ -1,6 +1,6 @@
 import requests
 
-from schema.currencies import CurrenciesCreateSchema
+from src.schema.currencies import CurrenciesCreateSchema
 
 
 class TestView():

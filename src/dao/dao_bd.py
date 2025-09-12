@@ -16,7 +16,7 @@ class DaoBD():
             cur.execute("SELECT name FROM sqlite_master")
 
             tables = cur.fetchall()
-            for table in tables:
+            for table in tables[1:]:
                 cur.execute(f"DROP TABLE IF EXISTS {table[0]}")
             
             conn.commit()

@@ -13,47 +13,54 @@ class DaoCurrencies():
         with sqlite3.connect('bd.sql') as conn:
             cur = conn.cursor()
             cur.execute("""CREATE TABLE currencies(
-                id INT AUTO_INCREMENT PRIMARY KEY, 
-                code VARCHAR(30),
-                fullname VARCHAR(30),
-                sing VARCHAR(5)             
-                );
-                """)
+                              id INTEGER PRIMARY KEY AUTOINCREMENT,
+                              code VARCHAR(30),
+                              fullname VARCHAR(40),
+                              sing VARCHAR(5) 
+                            );
+                        """)
             
     def post(dto: CurrenciesCreateDTO) -> int:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
-                INSERT INTO Currencies (code, fullname, sign) VALUES ({dto.code}, {dto.fullname}, {dto.sing})
-                """)
+                INSERT INTO Currencies (code, fullname, sign) 
+                VALUES (?, ?, ?);
+                """, (dto.code, dto.fullname, dto.sing))
                 id = cur.lastrowid
         return id
 
-    def get(id: int) -> list[Any]:
+    def get(id: int) -> list[CurrenciesCreateSchema]:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
-                SELECT * FROM Currencies WHERE id = {id}
-                """)
+                SELECT * FROM Currencies WHERE id = ?
+                """,
+                (id))
                 result = cur.fetchall()
         return result
-
-    def get() -> list[CurrenciesCreateSchema]:
-        with sqlite3.connect('bd.sql') as conn:
-            with conn:
-                cur = conn.cursor()
-                cur.execute()
     
-    def update(id: int, data: dict):
+    def update(id: int, dto: CurrenciesCreateDTO):
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
-                cur.execute()
+                cur.execute("""
+                UPDATE currencies
+                SET code = ?,
+                    fullname = ?,
+                    sing = ?
+                WHERE id = ?;
+                """,
+                (dto.code, dto.fullname, dto.sing, dto.id))
     
     def delete(id: int):
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
-                cur.execute()
+                cur.execute("""
+                    DELETE FROM currencies
+                    WHERE id = ?;
+                """,
+                (id))
