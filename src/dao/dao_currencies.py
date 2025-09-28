@@ -25,7 +25,7 @@ class DaoCurrencies():
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
-                INSERT INTO Currencies (code, fullname, sign) 
+                INSERT INTO currencies (code, fullname, sign) 
                 VALUES (?, ?, ?);
                 """, (dto.code, dto.fullname, dto.sing))
                 id = cur.lastrowid
@@ -36,7 +36,7 @@ class DaoCurrencies():
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
-                SELECT * FROM Currencies WHERE id = ?
+                SELECT * FROM currencies WHERE id = ?
                 """,
                 (id))
                 result = cur.fetchall()

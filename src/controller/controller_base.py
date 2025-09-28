@@ -1,10 +1,10 @@
 class BaseController:
     
-    def GET():
+    def do_GET():
         pass
 
-    def POST():
+    def do_POST():
         pass
 
-    def UPDATE():
+    def do_UPDATE():
         pass
