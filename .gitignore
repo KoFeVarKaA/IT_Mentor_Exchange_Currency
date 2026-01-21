@@ -180,3 +180,5 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 tests.py
+/html
+tests2.py

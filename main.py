@@ -1,14 +1,23 @@
-from src.dao.dao_bd import DaoBD
-from src.view.imitation_view import TestView
+from http.server import HTTPServer
+import logging
+import os
 
+from dotenv import load_dotenv
+from server import Server
 
-DaoBD.delete_all_tables()
-DaoBD.create_tables()
+load_dotenv()
 
-# responses = TestView.do_all_test()
-# for i in range(len(responses)):
-#     status_code = responses[i].status_code
-#     if responses[i].status_code != 200:
-#         print("ERROR: Плохой кодер, переделывай")
-#         break
-#     print(status_code)
+host, port = os.getenv('SERVER_HOST'), os.getenv('SERVER_PORT')
+server =  HTTPServer((host, port), Server)
+
+if __name__ == "__main__":
+    try:
+        logging.info("Запуск сервера...")
+        server.serve_forever()
+        logging.info(f"Сервер запущен. Адрес сервера {host}:{port}")
+
+    except KeyboardInterrupt:
+        logging.info('Сервер остановлен')
+
+    finally:
+        server.server_close()
