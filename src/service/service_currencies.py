@@ -1,15 +1,16 @@
 from result import Result, Ok, Err
 
-from dao.dao_currencies import DaoCurrencies
-from errors import Errors
-from src.dto.dto_currencies import CurrenciesCreateDTO
+from src.dao.dao_currencies import DaoCurrencies
+from src.errors import Errors
+from src.dto.dto_currencies import CurrenciesDTO
 
 
+# Принимаем от контроллера, делаем запрос в бд и возвращаем данные, либо ошибку
 class CurrenciesService():
     def __init__(self):
         self.dao = DaoCurrencies
         
-    def post_currencies(self, dto: CurrenciesCreateDTO) -> Result[None, None]:
+    def post_currencies(self, dto: CurrenciesDTO) -> Result[None, None]:
         currency_id = self.dao.post(dto)
 
         if currency_id == None:
@@ -20,7 +21,7 @@ class CurrenciesService():
     def get_currency(self, id: int) -> Result[None, None]:
         pass
 
-    def get_currencies(self, ) -> Result[None, None]:
+    def get_currencies(self) -> Result[list[CurrenciesDTO], Err]:
         pass
     
     def update_currency(self, id: int, data: dict) -> Result[None, None]:

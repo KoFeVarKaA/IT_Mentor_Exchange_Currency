@@ -42,6 +42,17 @@ class DaoCurrencies():
                 result = cur.fetchall()
         return result
     
+    def get_all() -> list[CurrenciesCreateSchema]:
+        with sqlite3.connect('bd.sql') as conn:
+            with conn:
+                cur = conn.cursor()
+                cur.execute(f"""
+                SELECT * FROM currencies
+                """,
+                (id))
+                result = cur.fetchall()
+        return result
+    
     def update(id: int, dto: CurrenciesCreateDTO):
         with sqlite3.connect('bd.sql') as conn:
             with conn:

@@ -1,7 +1,7 @@
 import sqlite3
 
-from dto.dto_rates import RatesCreateDTO
-from schema.rates import RatesCreateSchema
+from src.dto.dto_rates import RatesCreateDTO
+from src.schema.rates import RatesCreateSchema
 
 
 class DaoRates():

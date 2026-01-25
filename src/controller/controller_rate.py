@@ -1,4 +1,4 @@
-from controller.controller_base import BaseController
+from src.controller.controller_base import BaseController
 
 
 class RateController(BaseController):

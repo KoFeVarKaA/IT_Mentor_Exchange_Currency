@@ -1,15 +1,31 @@
 import json
 
 from result import Err, Ok
-from response import Responses
+from src.response import Responses
 from src.controller.controller_base import BaseController
 from src.schema.currencies import CurrenciesCreateSchema
 from src.service.service_currencies import CurrenciesService
 from src.dto.dto_currencies import CurrenciesCreateDTO
 
-
+# Валидируем и передаем сервису, а затем возвращаем ответ
 class CurrenciesController(BaseController):
-    def post_currencies(
+    def __init__(
+            self,
+            service: CurrenciesService,
+        ):
+        self.service = service
+
+
+    def do_GET(
+            self,
+        ) -> list[dict]:
+        result = self.service.get_currencies()
+        if result.is_err():
+            return Responses.initial_err(message=f"Ошибка {result.unwrap_err()}")
+        return result.unwrap()
+
+
+    def do_POST(
             self, 
             data: CurrenciesCreateSchema,
             service: CurrenciesService,

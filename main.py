@@ -7,7 +7,7 @@ from server import Server
 
 load_dotenv()
 
-host, port = os.getenv('SERVER_HOST'), os.getenv('SERVER_PORT')
+host, port = os.getenv('SERVER_HOST'), int(os.getenv('SERVER_PORT'))
 server =  HTTPServer((host, port), Server)
 
 if __name__ == "__main__":

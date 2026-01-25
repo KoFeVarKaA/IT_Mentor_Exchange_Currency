@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True, slots=True)
-class CurrenciesCreateDTO():
+class CurrenciesDTO():
 
     code : str
     fullname : str
