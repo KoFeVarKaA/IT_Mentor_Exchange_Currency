@@ -4,17 +4,26 @@ import logging
 from typing import Optional
 from urllib.parse import urlparse
 
+from src.service.service_currencies import CurrenciesService
 from src.controller.controller_currencies import CurrenciesController
 from src.controller.controller_rate import RateController
 from src.controller.controller_rates import RatesController
 from src.controller.controllet_currency import CurrencyController
 from src.response import Responses
 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
+
 controllers = {
     "exchangeRate": RateController,
     "exchangeRates": RatesController,
     "currency": CurrencyController,
-    "currencies": CurrenciesController,
+    "currencies": CurrenciesController(service=CurrenciesService()),
 
 }
 # Принимаем, обрабатываем запрос, отдаем контроллеру
@@ -22,16 +31,16 @@ class Server(BaseHTTPRequestHandler):
     def do_GET(self) -> dict | list:
         path = urlparse(self.path).path.split("/")
         if path[1] in controllers:
-            handle_class = path[1]
-            if isinstance(handle_class(), (RatesController, CurrenciesController)):
+            handle_class = controllers[path[1]]
+            if isinstance(handle_class, (RatesController, CurrenciesController)):
                 # В данном случае возвращаем массив
-                response = controllers[path[1]].do_GET(path)
+                response = handle_class.do_GET(path)
             else:
                 # В данном json
-                response = controllers[path[1]].do_GET(path)
+                response = handle_class.do_GET(path)
         else:
             message = (
-        f"К сожалению, сервен не обрабатывает запросы по адресу {self.path}"
+        f"К сожалению, сервер не обрабатывает запросы по адресу {self.path}"
             )
             response = Responses.not_found_err(message)
         return response

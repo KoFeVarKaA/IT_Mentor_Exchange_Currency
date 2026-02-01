@@ -1,4 +1,4 @@
-from src.dto.dto_currencies import CurrenciesCreateDTO
+from src.dto.dto_currencies import CurrenciesDTO
 
 
 class CurrenciesCreateSchema():
@@ -8,8 +8,8 @@ class CurrenciesCreateSchema():
     fullname : str
     sing : str
 
-    def to_dto(self) -> CurrenciesCreateDTO:
-        return CurrenciesCreateDTO(
+    def to_dto(self) -> CurrenciesDTO:
+        return CurrenciesDTO(
             id=self.id,
             code=self.code,
             fullname=self.fullname,

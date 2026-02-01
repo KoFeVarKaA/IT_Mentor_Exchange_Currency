@@ -1,11 +1,12 @@
 import json
 
 from result import Err, Ok
+from src.errors import ObjectNotFoundError
 from src.response import Responses
 from src.controller.controller_base import BaseController
 from src.schema.currencies import CurrenciesCreateSchema
 from src.service.service_currencies import CurrenciesService
-from src.dto.dto_currencies import CurrenciesCreateDTO
+from src.dto.dto_currencies import CurrenciesDTO
 
 # Валидируем и передаем сервису, а затем возвращаем ответ
 class CurrenciesController(BaseController):
@@ -17,10 +18,12 @@ class CurrenciesController(BaseController):
 
 
     def do_GET(
-            self,
+            self, path
         ) -> list[dict]:
         result = self.service.get_currencies()
         if result.is_err():
+            if isinstance(result.unwrap_err(), ObjectNotFoundError):
+                return Responses.not_found_err(message="К сожалению, валюты не найдены")
             return Responses.initial_err(message=f"Ошибка {result.unwrap_err()}")
         return result.unwrap()
 

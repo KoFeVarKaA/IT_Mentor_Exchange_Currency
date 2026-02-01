@@ -12,9 +12,8 @@ server =  HTTPServer((host, port), Server)
 
 if __name__ == "__main__":
     try:
-        logging.info("Запуск сервера...")
-        server.serve_forever()
         logging.info(f"Сервер запущен. Адрес сервера {host}:{port}")
+        server.serve_forever()
 
     except KeyboardInterrupt:
         logging.info('Сервер остановлен')

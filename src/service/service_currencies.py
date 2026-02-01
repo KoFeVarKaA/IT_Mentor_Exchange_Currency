@@ -1,7 +1,7 @@
 from result import Result, Ok, Err
 
 from src.dao.dao_currencies import DaoCurrencies
-from src.errors import Errors
+from src.errors import Errors, ObjectNotFoundError
 from src.dto.dto_currencies import CurrenciesDTO
 
 
@@ -21,9 +21,15 @@ class CurrenciesService():
     def get_currency(self, id: int) -> Result[None, None]:
         pass
 
-    def get_currencies(self) -> Result[list[CurrenciesDTO], Err]:
-        pass
-    
+    def get_currencies(self) -> Result[list[CurrenciesDTO], ObjectNotFoundError | str]:
+        try:
+            currencies = self.dao.get_all()
+            if not currencies:
+                return Err(ObjectNotFoundError(obj="currencies"))
+            return currencies
+        except:
+            return Err(Errors.something_goes_wrong())
+
     def update_currency(self, id: int, data: dict) -> Result[None, None]:
         pass
     

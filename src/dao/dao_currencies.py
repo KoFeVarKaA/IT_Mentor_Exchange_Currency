@@ -1,8 +1,8 @@
 import sqlite3
 from typing import Any
 
-from src.dto.dto_currencies import CurrenciesCreateDTO
-from src.schema.currencies import CurrenciesCreateSchema
+from src.dto.dto_currencies import CurrenciesDTO
+from src.schema.currencies import CurrenciesDTO
 
 
 class DaoCurrencies():
@@ -20,7 +20,7 @@ class DaoCurrencies():
                             );
                         """)
             
-    def post(dto: CurrenciesCreateDTO) -> int:
+    def post(dto: CurrenciesDTO) -> int:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
@@ -31,7 +31,7 @@ class DaoCurrencies():
                 id = cur.lastrowid
         return id
 
-    def get(id: int) -> list[CurrenciesCreateSchema]:
+    def get_by_id(id: int) -> CurrenciesDTO:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
@@ -40,20 +40,33 @@ class DaoCurrencies():
                 """,
                 (id))
                 result = cur.fetchall()
-        return result
+        if not result:
+            return []
+        return CurrenciesDTO(
+            id=result[0],
+            code=result[1],
+            fullname=result[2],
+            sing=result[3]
+        )
     
-    def get_all() -> list[CurrenciesCreateSchema]:
+    def get_all() -> list[CurrenciesDTO]:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
                 SELECT * FROM currencies
-                """,
-                (id))
-                result = cur.fetchall()
-        return result
+                """)
+                rows = cur.fetchall()
+        if not rows:
+            return None
+        return [CurrenciesDTO(
+            id=row[0],
+            code=row[1],
+            fullname=row[2],
+            sing=row[3]
+        ) for row in rows]
     
-    def update(id: int, dto: CurrenciesCreateDTO):
+    def update(id: int, dto: CurrenciesDTO):
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
