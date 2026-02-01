@@ -1,7 +1,7 @@
 import json
 
 from result import Err, Ok
-from src.errors import ObjectNotFoundError
+from src.errors import InitialError, ObjectNotFoundError
 from src.response import Responses
 from src.controller.controller_base import BaseController
 from src.schema.currencies import CurrenciesCreateSchema
@@ -23,9 +23,10 @@ class CurrenciesController(BaseController):
         result = self.service.get_currencies()
         if result.is_err():
             if isinstance(result.unwrap_err(), ObjectNotFoundError):
-                return Responses.not_found_err(message="К сожалению, валюты не найдены")
-            return Responses.initial_err(message=f"Ошибка {result.unwrap_err()}")
-        return result.unwrap()
+                return Responses.not_found_err(result.unwrap_err().message)
+            elif isinstance(result.unwrap_err(), InitialError):
+                return Responses.initial_err(result.unwrap_err().message)
+        return Responses.success(data=result.unwrap())
 
 
     def do_POST(
