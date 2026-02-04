@@ -5,6 +5,10 @@ import os
 from dotenv import load_dotenv
 from server import Server
 
+from src.dao.dao_currencies import DaoCurrencies
+
+# DaoCurrencies.create_table()
+
 load_dotenv()
 
 host, port = os.getenv('SERVER_HOST'), int(os.getenv('SERVER_PORT'))

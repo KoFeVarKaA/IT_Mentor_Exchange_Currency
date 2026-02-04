@@ -2,7 +2,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import logging
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from src.service.service_currencies import CurrenciesService
 from src.controller.controller_currencies import CurrenciesController
@@ -22,7 +22,7 @@ logging.basicConfig(
 controllers = {
     "exchangeRate": RateController,
     "exchangeRates": RatesController,
-    "currency": CurrencyController,
+    "currency": CurrencyController(service=CurrenciesService()),
     "currencies": CurrenciesController(service=CurrenciesService()),
 
 }
@@ -37,21 +37,24 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        logging.debug(f"{self.path}")
-        path = urlparse(self.path).path.split("/")
+        logging.debug(f"GET {self.client_address}{self.path}")
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path.split("/")
+        query = parse_qs(parsed_url.query)
         if path[1] in controllers:
             handle_class = controllers[path[1]]
             if isinstance(handle_class, (RatesController, CurrenciesController)):
                 # В данном случае возвращаем массив
                 response = handle_class.do_GET(path)
-            else:
+            # Можно сократить до else
+            elif isinstance(handle_class, (RateController, CurrencyController)):
                 # В данном json
-                response = handle_class.do_GET(path)
+                response = handle_class.do_GET(path, query)
         else:
             message = (
-        f"К сожалению, сервер не обрабатывает запросы по адресу {self.path}"
+        f"К сожалению, сервер не обрабатывает запросы по данному адресу"
             )
-            response = Responses.not_found_err(message)
+            response = Responses.initial_err(message)
         
         if response["status_code"] == 200:
             self.send_response(200)
@@ -66,25 +69,43 @@ class Server(BaseHTTPRequestHandler):
 
 
     def do_POST(self):
-        path = urlparse(self.path).path.split("/")
-        print(path)
+        logging.debug(f"POST {self.client_address}{self.path}")
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path.split("/")
+        content_length = int(self.headers.get('Content-Length', 0))
+        data = parse_qs(self.rfile.read(content_length).decode('utf-8'))
         if path[1] in controllers:
-            response = controllers[path[1]].do_POST(path)
+            handle_class = controllers[path[1]]
+            # Можно потом убрать
+            if isinstance(handle_class, (RatesController, CurrenciesController)):
+                response = handle_class.do_POST(path, data)
         else:
             message = (
-        f"К сожалению, сервен не обрабатывает запросы по адресу {self.path}"
+        f"К сожалению, сервер не обрабатывает запросы по данному адресу"
             )
-            response = Responses.not_found_err(message)
+            response = Responses.initial_err(message)
+        
+        if response["status_code"] == 200:
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+
+            self.wfile.write(json.dumps(response).encode("utf-8"))
+        else:
+            self.send_error_response(response)
 
 
     def do_PATCH(self):
+        logging.debug(f"PATCH {self.client_address}{self.path}")
         path = urlparse(self.path).path.split("/")
         print(path)
         if path[1] in controllers:
             response = controllers[path[1]].do_PATCH(path)
         else:
             message = (
-        f"К сожалению, сервен не обрабатывает запросы по адресу {self.path}"
+        f"К сожалению, сервен не обрабатывает запросы по данному адресу"
             )
             response = Responses.not_found_err(message)
         

@@ -1,14 +1,19 @@
+import os
+from dotenv import load_dotenv
 import requests
-
-from src.schema.currencies import CurrenciesCreateSchema
 
 
 class TestView():
-    def do_all_test():
+    def __init__(self):
+        load_dotenv()
+        host, port = os.getenv('SERVER_HOST'), int(os.getenv('SERVER_PORT'))
+        self.BASE_URL = f"http://{host}:{port}"
+
+    def do_all_test(self, ):
         data_currencies = {
                             "name": "United States dollar",
                             "code": "USD",
-                            "sign": "$"
+                            "sing": "$"
                         }
         data_currency_update = {}
 
@@ -38,33 +43,39 @@ class TestView():
         ]
         return responses
 
-    def post_currencies(data):
-        return requests.post('')
+    def post_currencies(self, data):
+        return requests.post(f"{self.BASE_URL}/currencies", data=data)
 
-    def get_currency(id: int):
+    def get_currency(self, id: int):
         return requests.get('')
 
-    def get_currencies() -> list[CurrenciesCreateSchema]:
+    def get_currencies(self, ):
         return requests.get('')
     
-    def update_currency(id: int, data: dict):
+    def update_currency(self, id: int, data: dict):
         return requests.post('')
     
-    def delete_currency(id: int):
+    def delete_currency(self, id: int):
         return requests.post('')
 
-    
-    def post_rates(datad):
+    def post_rates(self, data):
         return requests.post('')
 
-    def get_rate(id: int):
+    def get_rate(self, id: int):
         return requests.get('')
 
-    def get_rates():
+    def get_rates(self, ):
         return requests.get('')
     
-    def update_rates(id: int, data: dict):
+    def update_rates(self, id: int, data: dict):
         return requests.post('')
     
-    def delete_rate(id: int):
+    def delete_rate(self, id: int):
         return requests.post('')
+
+data_currencies = {
+        "name": "United States dollar",
+        "code": "USD",
+        "sing": "$"
+    }
+print(TestView().post_currencies(data=data_currencies))

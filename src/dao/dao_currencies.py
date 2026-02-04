@@ -25,13 +25,13 @@ class DaoCurrencies():
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
-                INSERT INTO currencies (code, fullname, sign) 
+                INSERT INTO currencies (code, fullname, sing) 
                 VALUES (?, ?, ?);
                 """, (dto.code, dto.fullname, dto.sing))
                 id = cur.lastrowid
         return id
 
-    def get_by_id(id: int) -> CurrenciesDTO:
+    def get_by_id(id: str) -> CurrenciesDTO:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
@@ -39,6 +39,24 @@ class DaoCurrencies():
                 SELECT * FROM currencies WHERE id = ?
                 """,
                 (id))
+                result = cur.fetchall()
+        if not result:
+            return []
+        return CurrenciesDTO(
+            id=result[0],
+            code=result[1],
+            fullname=result[2],
+            sing=result[3]
+        )
+    
+    def get_by_code(code: str) -> CurrenciesDTO:
+        with sqlite3.connect('bd.sql') as conn:
+            with conn:
+                cur = conn.cursor()
+                cur.execute(f"""
+                SELECT * FROM currencies WHERE code = ?
+                """,
+                (code))
                 result = cur.fetchall()
         if not result:
             return []
@@ -78,6 +96,7 @@ class DaoCurrencies():
                 WHERE id = ?;
                 """,
                 (dto.code, dto.fullname, dto.sing, dto.id))
+        
     
     def delete(id: int):
         with sqlite3.connect('bd.sql') as conn:

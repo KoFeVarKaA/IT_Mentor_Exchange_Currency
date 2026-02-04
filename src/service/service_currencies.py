@@ -1,7 +1,8 @@
+import logging
 from result import Result, Ok, Err
 
 from src.dao.dao_currencies import DaoCurrencies
-from src.errors import InitialError, ObjectNotFoundError
+from src.errors import InitialError, ObjectAlreadyExists, ObjectNotFoundError
 from src.dto.dto_currencies import CurrenciesDTO
 
 
@@ -10,16 +11,29 @@ class CurrenciesService():
     def __init__(self):
         self.dao = DaoCurrencies
         
-    def post_currencies(self, dto: CurrenciesDTO) -> Result[None, InitialError]:
+    def post_currencies(self, dto: CurrenciesDTO) -> Result[CurrenciesDTO, InitialError | ObjectAlreadyExists]:
+        currency = self.dao.get_by_code(code=dto.code)
+        if currency:
+            return Err(ObjectAlreadyExists(obj="currencies", field=dto.code))
+        
         currency_id = self.dao.post(dto)
-
-        if currency_id == None:
+        if not currency_id:
+            logging.debug(f"Ошибка сервера")
             return Err(InitialError())
-        return Ok(currency_id)
+        dto.id = currency_id
+        return Ok(dto)
             
 
-    def get_currency(self, id: int) -> Result[None, None]:
-        pass
+    def get_currency(self, id: int) -> Result[CurrenciesDTO, ObjectNotFoundError | InitialError]:
+        try:
+            currency = self.dao.get_by_id(id=id)
+            if not currency:
+                return Err(ObjectNotFoundError(obj="currency", field=id))
+            return currency
+        except Exception as e:
+            logging.debug(f"Ошибка: {e}")
+            return Err(InitialError())
+
 
     def get_currencies(self) -> Result[list[CurrenciesDTO], ObjectNotFoundError | InitialError]:
         try:
@@ -27,7 +41,8 @@ class CurrenciesService():
             if not currencies:
                 return Err(ObjectNotFoundError(obj="currencies"))
             return currencies
-        except:
+        except Exception as e:
+            logging.debug(f"Ошибка: {e}")
             return Err(InitialError())
 
     def update_currency(self, id: int, data: dict) -> Result[None, None]:

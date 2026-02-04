@@ -7,4 +7,4 @@ class CurrenciesDTO():
     code : str
     fullname : str
     sing : str
-    id : int = 0
+    id : int = None
