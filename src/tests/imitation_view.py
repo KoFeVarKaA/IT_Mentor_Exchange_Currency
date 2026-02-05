@@ -59,7 +59,7 @@ class TestView():
         return requests.post('')
 
     def post_rates(self, data):
-        return requests.post('')
+        return requests.post(f"{self.BASE_URL}/rates", data=data)
 
     def get_rate(self, id: int):
         return requests.get('')
@@ -79,3 +79,9 @@ data_currencies = {
         "sing": "$"
     }
 print(TestView().post_currencies(data=data_currencies))
+data_rates = {
+                        "basecurrenceid" : "USD",
+                        "targetcurrenceid" : "RUB",
+                        "rate" : 1  
+                    }
+print(TestView().post_rates(data=data_rates))

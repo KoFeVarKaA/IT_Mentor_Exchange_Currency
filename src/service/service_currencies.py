@@ -29,7 +29,7 @@ class CurrenciesService():
             currency = self.dao.get_by_id(id=id)
             if not currency:
                 return Err(ObjectNotFoundError(obj="currency", field=id))
-            return currency
+            return Ok(currency)
         except Exception as e:
             logging.debug(f"Ошибка: {e}")
             return Err(InitialError())
@@ -40,7 +40,7 @@ class CurrenciesService():
             currencies = self.dao.get_all()
             if not currencies:
                 return Err(ObjectNotFoundError(obj="currencies"))
-            return currencies
+            return Ok(currencies)
         except Exception as e:
             logging.debug(f"Ошибка: {e}")
             return Err(InitialError())

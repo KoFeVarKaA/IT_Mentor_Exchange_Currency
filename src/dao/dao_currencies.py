@@ -2,13 +2,13 @@ import sqlite3
 from typing import Any
 
 from src.dto.dto_currencies import CurrenciesDTO
-from src.schema.currencies import CurrenciesDTO
 
 
 class DaoCurrencies():
     def __init__(self):
         pass
 
+    @staticmethod
     def create_table():
         with sqlite3.connect('bd.sql') as conn:
             cur = conn.cursor()
@@ -19,6 +19,12 @@ class DaoCurrencies():
                               sing VARCHAR(5) 
                             );
                         """)
+
+    @staticmethod     
+    def delete_table():
+        with sqlite3.connect('bd.sql') as conn:
+            cur = conn.cursor()
+            cur.execute("""DROP TABLE currencies;""")
             
     def post(dto: CurrenciesDTO) -> int:
         with sqlite3.connect('bd.sql') as conn:
@@ -28,8 +34,8 @@ class DaoCurrencies():
                 INSERT INTO currencies (code, fullname, sing) 
                 VALUES (?, ?, ?);
                 """, (dto.code, dto.fullname, dto.sing))
-                id = cur.lastrowid
-        return id
+                currency_id = cur.lastrowid
+        return currency_id
 
     def get_by_id(id: str) -> CurrenciesDTO:
         with sqlite3.connect('bd.sql') as conn:
@@ -38,15 +44,15 @@ class DaoCurrencies():
                 cur.execute(f"""
                 SELECT * FROM currencies WHERE id = ?
                 """,
-                (id))
+                (id,))
                 result = cur.fetchall()
         if not result:
             return []
         return CurrenciesDTO(
-            id=result[0],
-            code=result[1],
-            fullname=result[2],
-            sing=result[3]
+            id=result[0][0],
+            code=result[0][1],
+            fullname=result[0][2],
+            sing=result[0][3]
         )
     
     def get_by_code(code: str) -> CurrenciesDTO:
@@ -56,15 +62,15 @@ class DaoCurrencies():
                 cur.execute(f"""
                 SELECT * FROM currencies WHERE code = ?
                 """,
-                (code))
+                (code,))
                 result = cur.fetchall()
         if not result:
             return []
         return CurrenciesDTO(
-            id=result[0],
-            code=result[1],
-            fullname=result[2],
-            sing=result[3]
+            id=result[0][0],
+            code=result[0][1],
+            fullname=result[0][2],
+            sing=result[0][3]
         )
     
     def get_all() -> list[CurrenciesDTO]:
@@ -106,4 +112,4 @@ class DaoCurrencies():
                     DELETE FROM currencies
                     WHERE id = ?;
                 """,
-                (id))
+                (id,))

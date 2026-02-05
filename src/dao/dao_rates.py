@@ -1,25 +1,31 @@
 import sqlite3
 
-from src.dto.dto_rates import RatesCreateDTO
-from src.schema.rates import RatesCreateSchema
+from src.dto.dto_rates import RatesDTO, RatesDTO
 
 
 class DaoRates():
     def __init__(self):
         pass
 
+    @staticmethod
     def create_table():
         with sqlite3.connect('bd.sql') as conn:
             cur = conn.cursor()
             cur.execute("""CREATE TABLE rates(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                basecurrenceid VARCHAR(30),
-                targetcurrenceid VARCHAR(30),
+                id INETGER PRIMARY KEY AUTOINCREMENT,
+                basecurrenceid INETGER,
+                targetcurrenceid INETGER,
                 rate DECIMAL(6)               
                 );
                 """)
             
-    def post(dto: RatesCreateDTO) -> int:
+    @staticmethod     
+    def delete_table():
+        with sqlite3.connect('bd.sql') as conn:
+            cur = conn.cursor()
+            cur.execute("""DROP TABLE rates;""")
+            
+    def post(dto: RatesDTO) -> int:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
@@ -30,7 +36,7 @@ class DaoRates():
                 id = cur.lastrowid
         return id
 
-    def get(id: int) -> list[RatesCreateSchema]:
+    def get(id: int) -> RatesDTO:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
@@ -39,9 +45,33 @@ class DaoRates():
                 """,
                 (id))
                 result = cur.fetchall()
-        return result
+        if not result:
+            return None
+        return RatesDTO(
+            id=result[0][0],
+            basecurrenceid=result[0][1],
+            targetcurrenceid=result[0][2],
+            sing=result[0][3]
+        )
     
-    def update(id: int, dto: RatesCreateDTO):
+    def get_all() -> list[RatesDTO]:
+        with sqlite3.connect('bd.sql') as conn:
+            with conn:
+                cur = conn.cursor()
+                cur.execute(f"""
+                SELECT * FROM rates
+                """)
+                rows = cur.fetchall()
+        if not rows:
+            return None
+        return [RatesDTO(
+            id=row[0],
+            basecurrenceid=row[1],
+            targetcurrenceid=row[2],
+            sing=row[3]
+        ) for row in rows]
+    
+    def update(id: int, dto: RatesDTO):
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()

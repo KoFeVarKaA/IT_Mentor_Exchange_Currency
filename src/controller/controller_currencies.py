@@ -1,11 +1,9 @@
-import json
+from dataclasses import asdict
 import logging
 
-from result import Err, Ok
 from src.errors import InitialError, ObjectAlreadyExists, ObjectNotFoundError
 from src.response import Responses
 from src.controller.controller_base import BaseController
-from src.schema.currencies import CurrenciesCreateSchema
 from src.service.service_currencies import CurrenciesService
 from src.dto.dto_currencies import CurrenciesDTO
 
@@ -20,7 +18,7 @@ class CurrenciesController(BaseController):
 
     def do_GET(
             self, path
-        ) -> list[dict]:
+        ):
         result = self.service.get_currencies()
 
         if result.is_err():
@@ -31,8 +29,8 @@ class CurrenciesController(BaseController):
             elif isinstance(result.unwrap_err(), InitialError):
                 logging.error(f"Ошибка базы данных или сервера")
                 return Responses.initial_err(result.unwrap_err().message)
-            
-        return Responses.success(data=result.unwrap())
+        data = [asdict(currency) for currency in result.unwrap()]
+        return Responses.success(data=data)
 
 
     def do_POST(
@@ -42,9 +40,9 @@ class CurrenciesController(BaseController):
             ):
         try:
             dto = CurrenciesDTO(
-                code=data["code"],
-                fullname=data["name"],
-                sing=data["sing"]
+                code=data["code"][0],
+                fullname=data["name"][0],
+                sing=data["sing"][0]
             )
         except KeyError:
             logging.error("Ошибка ввода. Отсутствует нужное поле формы")
@@ -55,10 +53,10 @@ class CurrenciesController(BaseController):
         if result.is_err():
             if isinstance(result.unwrap_err(), ObjectAlreadyExists):
                 logging.error(f"Ошибка. Объект {data["name"]} уже существует")
-                return Responses.not_found_err(result.unwrap_err().message)
+                return Responses.already_exists(result.unwrap_err().message)
             
             elif isinstance(result.unwrap_err(), InitialError):
                 logging.error(f"Ошибка базы данных или сервера")
                 return Responses.initial_err(result.unwrap_err().message)
             
-        return Responses.success(message=f"Валюта с id {result.value} успешно создана")
+        return Responses.success(data=asdict(result.unwrap()))

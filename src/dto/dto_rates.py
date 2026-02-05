@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True, slots=True)
-class RatesCreateDTO():
+@dataclass(slots=True)
+class RatesDTO():
     
     id : int
     basecurrenceid : str

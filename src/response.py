@@ -25,6 +25,13 @@ class Responses():
         }
         return respons_data
     
+    def already_exists(message: str):
+        respons_data = {
+            "message": message,
+            "status_code": 409
+        }
+        return respons_data
+
     def initial_err(message: str):
         respons_data = {
             "message": message,

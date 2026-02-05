@@ -4,6 +4,7 @@ import logging
 from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
+from src.service.service_rates import RatesService
 from src.service.service_currencies import CurrenciesService
 from src.controller.controller_currencies import CurrenciesController
 from src.controller.controller_rate import RateController
@@ -20,14 +21,17 @@ logging.basicConfig(
 )
 
 controllers = {
-    "exchangeRate": RateController,
-    "exchangeRates": RatesController,
+    "exchangeRate": RateController(service=RatesService()),
+    "exchangeRates": RatesController(service=RatesService()),
     "currency": CurrencyController(service=CurrenciesService()),
     "currencies": CurrenciesController(service=CurrenciesService()),
 
 }
 # Принимаем, обрабатываем запрос, отдаем контроллеру
 class Server(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        return
+
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header('Access-Control-Allow-Methods', 'GET,POST,PATCH,OPTIONS')
@@ -37,7 +41,7 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        logging.debug(f"GET {self.client_address}{self.path}")
+        logging.debug(f"GET {"/".join(map(str, self.client_address))}{self.path}")
         parsed_url = urlparse(self.path)
         path = parsed_url.path.split("/")
         query = parse_qs(parsed_url.query)
@@ -63,13 +67,13 @@ class Server(BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
 
-            self.wfile.write(json.dumps(response).encode("utf-8"))
+            self.wfile.write(json.dumps(response["data"]).encode("utf-8"))
         else:
             self.send_error_response(response)
 
 
     def do_POST(self):
-        logging.debug(f"POST {self.client_address}{self.path}")
+        logging.debug(f"POST {"/".join(map(str, self.client_address))}{self.path}")
         parsed_url = urlparse(self.path)
         path = parsed_url.path.split("/")
         content_length = int(self.headers.get('Content-Length', 0))
@@ -92,7 +96,7 @@ class Server(BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
 
-            self.wfile.write(json.dumps(response).encode("utf-8"))
+            self.wfile.write(json.dumps(response["data"]).encode("utf-8"))
         else:
             self.send_error_response(response)
 
