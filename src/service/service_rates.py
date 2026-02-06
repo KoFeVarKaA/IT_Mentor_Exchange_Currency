@@ -87,3 +87,11 @@ class RatesService():
         except Exception as e:
             logging.debug(f"Ошибка: {e}")
             return Err(InitialError())
+        
+    def update_rate(self, dto: RatesDTO) -> Result[None, InitialError]:
+        try:
+            self.dao.update_rate(dto=dto)
+            return Ok(None)
+        except Exception as e:
+            logging.debug(f"Ошибка: {e}")
+            return Err(InitialError())

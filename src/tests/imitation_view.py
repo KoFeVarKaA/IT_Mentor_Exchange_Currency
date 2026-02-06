@@ -46,32 +46,13 @@ class TestView():
     def post_currencies(self, data):
         return requests.post(f"{self.BASE_URL}/currencies", data=data)
 
-    def get_currency(self, id: int):
-        return requests.get('')
-
-    def get_currencies(self, ):
-        return requests.get('')
-    
-    def update_currency(self, id: int, data: dict):
-        return requests.post('')
-    
-    def delete_currency(self, id: int):
-        return requests.post('')
-
     def post_rates(self, data):
         return requests.post(f"{self.BASE_URL}/exchangeRates", data=data)
-
-    def get_rate(self, id: int):
-        return requests.get('')
-
-    def get_rates(self, ):
-        return requests.get('')
     
-    def update_rates(self, id: int, data: dict):
-        return requests.post('')
-    
-    def delete_rate(self, id: int):
-        return requests.post('')
+    def patch_rate(self, path, data):
+        return requests.patch(f"{self.BASE_URL}//exchangeRate/{path}", data=data)
+
+view = TestView()
 
 data_currencies = {
         "name": "United States dollar",
@@ -83,11 +64,15 @@ data_currencies2 = {
         "code": "EUR",
         "sign": "€"
     }
-print(TestView().post_currencies(data=data_currencies))
-print(TestView().post_currencies(data=data_currencies2))
+# print(view.post_currencies(data=data_currencies))
+# print(view.post_currencies(data=data_currencies2))
 data_rates = {
                         "baseCurrencyCode" : "USD",
                         "targetCurrencyCode" : "EUR",
                         "rate" : 1.5 
                     }
-print(TestView().post_rates(data=data_rates))
+data_patch = {
+        "rate" : 1.4,
+}
+# print(view.post_rates(data=data_rates))
+print(view.patch_rate(path="USDEUR", data=data_patch))

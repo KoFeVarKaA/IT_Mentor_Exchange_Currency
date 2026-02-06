@@ -103,15 +103,31 @@ class Server(BaseHTTPRequestHandler):
 
     def do_PATCH(self):
         logging.debug(f"PATCH {self.client_address}{self.path}")
-        path = urlparse(self.path).path.split("/")
-        print(path)
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path.split("/")
+        content_length = int(self.headers.get('Content-Length', 0))
+        data = parse_qs(self.rfile.read(content_length).decode('utf-8'))
         if path[1] in controllers:
-            response = controllers[path[1]].do_PATCH(path)
+            handle_class = controllers[path[1]]
+            # Можно потом убрать
+            if isinstance(handle_class, (RateController)):
+                response = handle_class.do_PATCH(path, data)
         else:
             message = (
-        f"К сожалению, сервен не обрабатывает запросы по данному адресу"
+        f"К сожалению, сервер не обрабатывает запросы по данному адресу"
             )
-            response = Responses.not_found_err(message)
+            response = Responses.initial_err(message)
+        
+        if response["status_code"] == 200:
+            self.send_response(201)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+
+            self.wfile.write(json.dumps(response["data"]).encode("utf-8"))
+        else:
+            self.send_error_response(response)
         
 
 

@@ -102,6 +102,17 @@ class DaoRates():
                 WHERE id = ?;
                 """,
                 (dto.basecurrenceid, dto.targetcurrenceid, dto.rate, dto.id))
+
+    def update_rate(dto: RatesDTO):
+        with sqlite3.connect('bd.sql') as conn:
+            with conn:
+                cur = conn.cursor()
+                cur.execute("""
+                UPDATE rates
+                SET rate = ?
+                WHERE id = ?;
+                """,
+                (dto.rate, dto.id))
     
     def delete(id: int):
         with sqlite3.connect('bd.sql') as conn:

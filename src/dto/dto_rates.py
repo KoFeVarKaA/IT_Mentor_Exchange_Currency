@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass(slots=True)
 class RatesDTO():
     
-    rate : int 
+    rate : int = None
     basecurrenceid : str = None
     targetcurrenceid : str = None
     basecurrencecode : str = None
