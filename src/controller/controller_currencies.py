@@ -42,12 +42,12 @@ class CurrenciesController(BaseController):
             dto = CurrenciesDTO(
                 code=data["code"][0],
                 fullname=data["name"][0],
-                sing=data["sing"][0]
+                sign=data["sign"][0]
             )
         except KeyError:
             logging.error("Ошибка ввода. Отсутствует нужное поле формы")
             return Responses.input_err(
-                message="Отсутствует нужное поле формы. Поля формы:name, code, sing")
+                message="Отсутствует нужное поле формы")
         
         result = self.service.post_currencies(dto)
         if result.is_err():

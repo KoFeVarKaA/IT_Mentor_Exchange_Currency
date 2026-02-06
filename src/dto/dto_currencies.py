@@ -6,5 +6,5 @@ class CurrenciesDTO():
 
     code : str
     fullname : str
-    sing : str
+    sign : str
     id : int = None

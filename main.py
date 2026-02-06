@@ -3,7 +3,7 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from dao.dao_rates import DaoRates
+from src.dao.dao_rates import DaoRates
 from server import Server
 
 from src.dao.dao_currencies import DaoCurrencies
@@ -11,9 +11,9 @@ from src.dao.dao_currencies import DaoCurrencies
 # dao = DaoCurrencies()
 # dao.delete_table()
 # dao.create_table()
-dao = DaoRates()
-dao.delete_table()
-dao.create_table()
+# dao = DaoRates()
+# dao.delete_table()
+# dao.create_table()
 
 
 load_dotenv()

@@ -90,7 +90,7 @@ class Server(BaseHTTPRequestHandler):
             response = Responses.initial_err(message)
         
         if response["status_code"] == 200:
-            self.send_response(200)
+            self.send_response(201)
             self.send_header("Content-Type", "application/json")
             self.send_header("Cache-Control", "no-cache")
             self.send_header("Access-Control-Allow-Origin", "*")

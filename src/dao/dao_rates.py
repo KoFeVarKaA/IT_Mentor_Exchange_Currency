@@ -1,6 +1,6 @@
 import sqlite3
 
-from src.dto.dto_rates import RatesDTO, RatesDTO
+from src.dto.dto_rates import RatesDTO
 
 
 class DaoRates():
@@ -12,10 +12,10 @@ class DaoRates():
         with sqlite3.connect('bd.sql') as conn:
             cur = conn.cursor()
             cur.execute("""CREATE TABLE rates(
-                id INETGER PRIMARY KEY AUTOINCREMENT,
-                basecurrenceid INETGER,
-                targetcurrenceid INETGER,
-                rate DECIMAL(6)               
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                basecurrenceid INTEGER,
+                targetcurrenceid INTEGER,
+                rate REAL               
                 );
                 """)
             
@@ -36,14 +36,14 @@ class DaoRates():
                 id = cur.lastrowid
         return id
 
-    def get(id: int) -> RatesDTO:
+    def get_by_id(id: str) -> RatesDTO:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
                 SELECT * FROM rates WHERE id = ?
                 """,
-                (id))
+                (id,))
                 result = cur.fetchall()
         if not result:
             return None
@@ -51,7 +51,26 @@ class DaoRates():
             id=result[0][0],
             basecurrenceid=result[0][1],
             targetcurrenceid=result[0][2],
-            sing=result[0][3]
+            rate=result[0][3]
+        )
+    
+    def get_by_ids(basecurrencyid:str, targetcurrencyid:str) ->RatesDTO:
+        with sqlite3.connect('bd.sql') as conn:
+            with conn:
+                cur = conn.cursor()
+                cur.execute(f"""
+                SELECT * FROM rates 
+                WHERE basecurrenceid = ? AND targetcurrenceid = ?
+                """,
+                (basecurrencyid, targetcurrencyid))
+                result = cur.fetchall()
+        if not result:
+            return None
+        return RatesDTO(
+            id=result[0][0],
+            basecurrenceid=result[0][1],
+            targetcurrenceid=result[0][2],
+            rate=result[0][3]
         )
     
     def get_all() -> list[RatesDTO]:
@@ -68,7 +87,7 @@ class DaoRates():
             id=row[0],
             basecurrenceid=row[1],
             targetcurrenceid=row[2],
-            sing=row[3]
+            rate=row[3]
         ) for row in rows]
     
     def update(id: int, dto: RatesDTO):
@@ -92,4 +111,4 @@ class DaoRates():
                     DELETE FROM rates
                     WHERE id = ?;
                 """,
-                (id))
+                (id,))

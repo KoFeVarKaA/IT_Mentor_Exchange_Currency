@@ -16,7 +16,7 @@ class DaoCurrencies():
                               id INTEGER PRIMARY KEY AUTOINCREMENT,
                               code VARCHAR(30),
                               fullname VARCHAR(40),
-                              sing VARCHAR(5) 
+                              sign VARCHAR(5) 
                             );
                         """)
 
@@ -31,9 +31,9 @@ class DaoCurrencies():
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
-                INSERT INTO currencies (code, fullname, sing) 
+                INSERT INTO currencies (code, fullname, sign) 
                 VALUES (?, ?, ?);
-                """, (dto.code, dto.fullname, dto.sing))
+                """, (dto.code, dto.fullname, dto.sign))
                 currency_id = cur.lastrowid
         return currency_id
 
@@ -52,9 +52,22 @@ class DaoCurrencies():
             id=result[0][0],
             code=result[0][1],
             fullname=result[0][2],
-            sing=result[0][3]
+            sign=result[0][3]
         )
     
+    def get_id_by_code(code: str) -> int:
+        with sqlite3.connect('bd.sql') as conn:
+            with conn:
+                cur = conn.cursor()
+                cur.execute(f"""
+                SELECT id FROM currencies WHERE code = ?
+                """,
+                (code,))
+                result = cur.fetchall()
+        if not result:
+            return []
+        return result[0][0]
+
     def get_by_code(code: str) -> CurrenciesDTO:
         with sqlite3.connect('bd.sql') as conn:
             with conn:
@@ -70,7 +83,7 @@ class DaoCurrencies():
             id=result[0][0],
             code=result[0][1],
             fullname=result[0][2],
-            sing=result[0][3]
+            sign=result[0][3]
         )
     
     def get_all() -> list[CurrenciesDTO]:
@@ -87,7 +100,7 @@ class DaoCurrencies():
             id=row[0],
             code=row[1],
             fullname=row[2],
-            sing=row[3]
+            sign=row[3]
         ) for row in rows]
     
     def update(id: int, dto: CurrenciesDTO):
@@ -98,10 +111,10 @@ class DaoCurrencies():
                 UPDATE currencies
                 SET code = ?,
                     fullname = ?,
-                    sing = ?
+                    sign = ?
                 WHERE id = ?;
                 """,
-                (dto.code, dto.fullname, dto.sing, dto.id))
+                (dto.code, dto.fullname, dto.sign, dto.id))
         
     
     def delete(id: int):
