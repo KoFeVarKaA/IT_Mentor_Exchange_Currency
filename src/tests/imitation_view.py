@@ -88,6 +88,6 @@ print(TestView().post_currencies(data=data_currencies2))
 data_rates = {
                         "baseCurrencyCode" : "USD",
                         "targetCurrencyCode" : "EUR",
-                        "rate" : 1  
+                        "rate" : 1.5 
                     }
 print(TestView().post_rates(data=data_rates))
