@@ -1,16 +1,37 @@
+import logging
+import sys
 import os
-import pytest
+from pathlib import Path
+# Добавляем путь к корневой директории проекта
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
 import requests
 from dotenv import load_dotenv
+from src.dao.dao_currencies import DaoCurrencies
+from src.dao.dao_rates import DaoRates
 
-class TestCurrencyAPI:
+
+
+class TestCurrencyExchangeAPI:
     @classmethod
     def setup_class(cls):
+        logging.info("Запуск тестов...")
         load_dotenv()
-        host, port = os.getenv('SERVER_HOST'), int(os.getenv('SERVER_PORT'))
+        host, port = os.getenv('SERVER_HOST_TEST'), int(os.getenv('SERVER_PORT_TEST'))
         cls.BASE_URL = f"http://{host}:{port}"
+        cls._clear_database()
         cls._add_test_currencies()
         cls._add_test_exchange_rates()
+
+    @classmethod
+    def _clear_database(cls):
+        database_test = os.getenv('DATABASE_TEST')
+        dao = DaoCurrencies(database=database_test)
+        dao.delete_table()
+        dao.create_table()
+        dao = DaoRates(database=database_test)
+        dao.delete_table()
+        dao.create_table()
 
     @classmethod
     def _add_test_currencies(cls):

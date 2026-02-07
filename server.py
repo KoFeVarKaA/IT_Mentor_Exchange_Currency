@@ -1,11 +1,8 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler
 import json
 import logging
-from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
-from src.service.service_rates import RatesService
-from src.service.service_currencies import CurrenciesService
 from src.controller.controller_currencies import CurrenciesController
 from src.controller.controller_exchange import ExchangeController
 from src.controller.controller_rate import RateController
@@ -21,16 +18,12 @@ logging.basicConfig(
     ]
 )
 
-controllers = {
-    "exchange" : ExchangeController(service=RatesService()), 
-    "exchangeRate": RateController(service=RatesService()),
-    "exchangeRates": RatesController(service=RatesService()),
-    "currency": CurrencyController(service=CurrenciesService()),
-    "currencies": CurrenciesController(service=CurrenciesService()),
-
-}
 # Принимаем, обрабатываем запрос, отдаем контроллеру
 class Server(BaseHTTPRequestHandler):
+    def __init__(self, controllers:dict, *args, **kwargs):
+        self.controllers = controllers
+        super().__init__(*args, **kwargs)
+
     def log_message(self, format, *args):
         return
 
@@ -47,8 +40,8 @@ class Server(BaseHTTPRequestHandler):
         parsed_url = urlparse(self.path)
         path = parsed_url.path.split("/")
         query = parse_qs(parsed_url.query)
-        if path[1] in controllers:
-            handle_class = controllers[path[1]]
+        if path[1] in self.controllers:
+            handle_class = self.controllers[path[1]]
             if isinstance(handle_class, (RatesController, CurrenciesController)):
                 # В данном случае возвращаем массив
                 response = handle_class.do_GET(path)
@@ -80,8 +73,8 @@ class Server(BaseHTTPRequestHandler):
         path = parsed_url.path.split("/")
         content_length = int(self.headers.get('Content-Length', 0))
         data = parse_qs(self.rfile.read(content_length).decode('utf-8'))
-        if path[1] in controllers:
-            handle_class = controllers[path[1]]
+        if path[1] in self.controllers:
+            handle_class = self.controllers[path[1]]
             # Можно потом убрать
             if isinstance(handle_class, (RatesController, CurrenciesController)):
                 response = handle_class.do_POST(path, data)
@@ -109,8 +102,8 @@ class Server(BaseHTTPRequestHandler):
         path = parsed_url.path.split("/")
         content_length = int(self.headers.get('Content-Length', 0))
         data = parse_qs(self.rfile.read(content_length).decode('utf-8'))
-        if path[1] in controllers:
-            handle_class = controllers[path[1]]
+        if path[1] in self.controllers:
+            handle_class = self.controllers[path[1]]
             # Можно потом убрать
             if isinstance(handle_class, (RateController)):
                 response = handle_class.do_PATCH(path, data)

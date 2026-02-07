@@ -8,8 +8,8 @@ from src.dto.dto_currencies import CurrenciesDTO
 
 # Принимаем от контроллера, делаем запрос в бд и возвращаем данные, либо ошибку
 class CurrenciesService():
-    def __init__(self):
-        self.dao = DaoCurrencies
+    def __init__(self, dao: DaoCurrencies):
+        self.dao = dao
         
     def post_currencies(self, dto: CurrenciesDTO) -> Result[CurrenciesDTO, InitialError | ObjectAlreadyExists]:
         currency = self.dao.get_by_code(code=dto.code)

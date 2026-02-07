@@ -5,12 +5,11 @@ from src.dto.dto_currencies import CurrenciesDTO
 
 
 class DaoCurrencies():
-    def __init__(self):
-        pass
+    def __init__(self, database: str):
+        self.database = database
 
-    @staticmethod
-    def create_table():
-        with sqlite3.connect('bd.sql') as conn:
+    def create_table(self):
+        with sqlite3.connect(self.database) as conn:
             cur = conn.cursor()
             cur.execute("""CREATE TABLE currencies(
                               id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -19,15 +18,14 @@ class DaoCurrencies():
                               sign VARCHAR(5) 
                             );
                         """)
-
-    @staticmethod     
-    def delete_table():
-        with sqlite3.connect('bd.sql') as conn:
+    
+    def delete_table(self):
+        with sqlite3.connect(self.database) as conn:
             cur = conn.cursor()
             cur.execute("""DROP TABLE currencies;""")
             
-    def post(dto: CurrenciesDTO) -> int:
-        with sqlite3.connect('bd.sql') as conn:
+    def post(self, dto: CurrenciesDTO) -> int:
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
@@ -37,8 +35,8 @@ class DaoCurrencies():
                 currency_id = cur.lastrowid
         return currency_id
 
-    def get_by_id(id: str) -> CurrenciesDTO:
-        with sqlite3.connect('bd.sql') as conn:
+    def get_by_id(self, id: str) -> CurrenciesDTO:
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
@@ -55,8 +53,8 @@ class DaoCurrencies():
             sign=result[0][3]
         )
     
-    def get_id_by_code(code: str) -> int:
-        with sqlite3.connect('bd.sql') as conn:
+    def get_id_by_code(self, code: str) -> int:
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
@@ -68,8 +66,8 @@ class DaoCurrencies():
             return []
         return result[0][0]
 
-    def get_by_code(code: str) -> CurrenciesDTO:
-        with sqlite3.connect('bd.sql') as conn:
+    def get_by_code(self, code: str) -> CurrenciesDTO:
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
@@ -86,8 +84,8 @@ class DaoCurrencies():
             sign=result[0][3]
         )
     
-    def get_all() -> list[CurrenciesDTO]:
-        with sqlite3.connect('bd.sql') as conn:
+    def get_all(self, ) -> list[CurrenciesDTO]:
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
@@ -103,8 +101,8 @@ class DaoCurrencies():
             sign=row[3]
         ) for row in rows]
     
-    def update(id: int, dto: CurrenciesDTO):
-        with sqlite3.connect('bd.sql') as conn:
+    def update(self, id: int, dto: CurrenciesDTO):
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute("""
@@ -117,8 +115,8 @@ class DaoCurrencies():
                 (dto.code, dto.fullname, dto.sign, dto.id))
         
     
-    def delete(id: int):
-        with sqlite3.connect('bd.sql') as conn:
+    def delete(self, id: int):
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute("""

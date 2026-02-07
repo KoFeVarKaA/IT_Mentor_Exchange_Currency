@@ -4,12 +4,11 @@ from src.dto.dto_rates import RatesDTO
 
 
 class DaoRates():
-    def __init__(self):
-        pass
+    def __init__(self, database: str):
+        self.database = database
 
-    @staticmethod
-    def create_table():
-        with sqlite3.connect('bd.sql') as conn:
+    def create_table(self):
+        with sqlite3.connect(self.database) as conn:
             cur = conn.cursor()
             cur.execute("""CREATE TABLE rates(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,15 +17,14 @@ class DaoRates():
                 rate REAL               
                 );
                 """)
-            
-    @staticmethod     
-    def delete_table():
-        with sqlite3.connect('bd.sql') as conn:
+                 
+    def delete_table(self):
+        with sqlite3.connect(self.database) as conn:
             cur = conn.cursor()
             cur.execute("""DROP TABLE rates;""")
             
-    def post(dto: RatesDTO) -> int:
-        with sqlite3.connect('bd.sql') as conn:
+    def post(self, dto: RatesDTO) -> int:
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
@@ -36,8 +34,8 @@ class DaoRates():
                 id = cur.lastrowid
         return id
 
-    def get_by_id(id: str) -> RatesDTO:
-        with sqlite3.connect('bd.sql') as conn:
+    def get_by_id(self, id: str) -> RatesDTO:
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
@@ -54,8 +52,10 @@ class DaoRates():
             rate=result[0][3]
         )
     
-    def get_by_ids(basecurrencyid:str, targetcurrencyid:str) ->RatesDTO:
-        with sqlite3.connect('bd.sql') as conn:
+    def get_by_ids(
+            self, basecurrencyid:str, targetcurrencyid:str
+        ) ->RatesDTO:
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
@@ -73,8 +73,8 @@ class DaoRates():
             rate=result[0][3]
         )
     
-    def get_all() -> list[RatesDTO]:
-        with sqlite3.connect('bd.sql') as conn:
+    def get_all(self) -> list[RatesDTO]:
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
@@ -90,8 +90,8 @@ class DaoRates():
             rate=row[3]
         ) for row in rows]
     
-    def update(id: int, dto: RatesDTO):
-        with sqlite3.connect('bd.sql') as conn:
+    def update(self, id: int, dto: RatesDTO):
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute("""
@@ -103,8 +103,8 @@ class DaoRates():
                 """,
                 (dto.basecurrencyid, dto.targetcurrencyid, dto.rate, dto.id))
 
-    def update_rate(dto: RatesDTO):
-        with sqlite3.connect('bd.sql') as conn:
+    def update_rate(self, dto: RatesDTO):
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute("""
@@ -114,8 +114,8 @@ class DaoRates():
                 """,
                 (dto.rate, dto.id))
     
-    def delete(id: int):
-        with sqlite3.connect('bd.sql') as conn:
+    def delete(self, id: int):
+        with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
                 cur.execute("""

@@ -10,9 +10,13 @@ from src.errors import InitialError, ObjectAlreadyExists, ObjectNotFoundError
 
 # Принимаем от контроллера, делаем запрос в бд и возвращаем данные, либо ошибку
 class RatesService():
-    def __init__(self):
-        self.dao = DaoRates
-        self.dao_currencies = DaoCurrencies            
+    def __init__(
+            self,
+            dao : DaoRates,
+            dao_currencies : DaoCurrencies
+        ):
+        self.dao = dao
+        self.dao_currencies = dao_currencies            
 
     def get_rate_id_by_code(self, 
                 currencycode: str,
