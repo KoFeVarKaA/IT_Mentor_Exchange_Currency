@@ -13,8 +13,8 @@ class DaoRates():
             cur = conn.cursor()
             cur.execute("""CREATE TABLE rates(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                basecurrenceid INTEGER,
-                targetcurrenceid INTEGER,
+                basecurrencyid INTEGER,
+                targetcurrencyid INTEGER,
                 rate REAL               
                 );
                 """)
@@ -30,9 +30,9 @@ class DaoRates():
             with conn:
                 cur = conn.cursor()
                 cur.execute(f"""
-                INSERT INTO rates (basecurrenceid, targetcurrenceid, rate) 
+                INSERT INTO rates (basecurrencyid, targetcurrencyid, rate) 
                 VALUES (?, ?, ?);
-                """, (dto.basecurrenceid, dto.targetcurrenceid, dto.rate))
+                """, (dto.basecurrencyid, dto.targetcurrencyid, dto.rate))
                 id = cur.lastrowid
         return id
 
@@ -49,8 +49,8 @@ class DaoRates():
             return None
         return RatesDTO(
             id=result[0][0],
-            basecurrenceid=result[0][1],
-            targetcurrenceid=result[0][2],
+            basecurrencyid=result[0][1],
+            targetcurrencyid=result[0][2],
             rate=result[0][3]
         )
     
@@ -60,7 +60,7 @@ class DaoRates():
                 cur = conn.cursor()
                 cur.execute(f"""
                 SELECT * FROM rates 
-                WHERE basecurrenceid = ? AND targetcurrenceid = ?
+                WHERE basecurrencyid = ? AND targetcurrencyid = ?
                 """,
                 (basecurrencyid, targetcurrencyid))
                 result = cur.fetchall()
@@ -68,8 +68,8 @@ class DaoRates():
             return None
         return RatesDTO(
             id=result[0][0],
-            basecurrenceid=result[0][1],
-            targetcurrenceid=result[0][2],
+            basecurrencyid=result[0][1],
+            targetcurrencyid=result[0][2],
             rate=result[0][3]
         )
     
@@ -85,8 +85,8 @@ class DaoRates():
             return None
         return [RatesDTO(
             id=row[0],
-            basecurrenceid=row[1],
-            targetcurrenceid=row[2],
+            basecurrencyid=row[1],
+            targetcurrencyid=row[2],
             rate=row[3]
         ) for row in rows]
     
@@ -96,12 +96,12 @@ class DaoRates():
                 cur = conn.cursor()
                 cur.execute("""
                 UPDATE rates
-                SET basecurrenceid = ?,
-                    targetcurrenceid = ?,
+                SET basecurrencyid = ?,
+                    targetcurrencyid = ?,
                     rate = ?
                 WHERE id = ?;
                 """,
-                (dto.basecurrenceid, dto.targetcurrenceid, dto.rate, dto.id))
+                (dto.basecurrencyid, dto.targetcurrencyid, dto.rate, dto.id))
 
     def update_rate(dto: RatesDTO):
         with sqlite3.connect('bd.sql') as conn:

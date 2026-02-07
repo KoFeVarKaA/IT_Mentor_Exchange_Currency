@@ -18,8 +18,8 @@ class CurrencyController(BaseController):
             self, path, query
         ) -> list[dict]:
         try:
-            id = query['id'][0]
-        except KeyError:
+            code = path[2]
+        except IndexError:
             logging.error("Ошибка ввода. Код валюты отсутвует")
             return Responses.input_err(message="Код валюты отустсвует в адресе")
         result = self.service.get_currency(id=id)

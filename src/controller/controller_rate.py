@@ -19,27 +19,22 @@ class RateController(BaseController):
             self, path, query
         ):
         try:
-            basecurrencecode, targetcurrencecode = "".join(path[2][:3]), "".join(path[2][3:]) 
+            dto = RatesDTO(
+                basecurrencycode="".join(path[2][:3]),
+                targetcurrencycode="".join(path[2][3:]),
+            )
         except KeyError:
-            logging.error("Ошибка ввода. Код валюты отсутвует")
-            return Responses.input_err(message="Код валюты отустсвует в адресе")
-        result = self.service.get_rate(
-            basecurrencecode=basecurrencecode, targetcurrencecode=targetcurrencecode
-        )
+            logging.error("Ошибка ввода. Отсутствует нужное поле формы")
+            return Responses.input_err(
+                message="Отсутствует нужное поле формы")
+        
+        result = self.service.get_rate(dto=dto)
         if result.is_err():
             if isinstance(result.unwrap_err(), ObjectNotFoundError):
                 return Responses.not_found_err(result.unwrap_err().message)
             elif isinstance(result.unwrap_err(), InitialError):
                 return Responses.initial_err(result.unwrap_err().message)
-        return Responses.success(data=self.format_rates_dto(result.unwrap()))
-    
-    def format_rates_dto(self, rates_dto: RatesDTO):
-        return {
-            "id": rates_dto.id,
-            "baseCurrency": rates_dto.basecurrence,
-            "targetCurrency": rates_dto.targetcurrence,
-            "rate": rates_dto.rate
-        }
+        return Responses.success(data=result.unwrap().to_formatted_dict())
     
     def do_PATCH(
             self, 
@@ -48,15 +43,13 @@ class RateController(BaseController):
             ):
         try:
             dto = RatesDTO(
-                basecurrencecode = "".join(path[2][:3]),
-                targetcurrencecode = "".join(path[2][3:]) 
+                basecurrencycode = "".join(path[2][:3]),
+                targetcurrencycode = "".join(path[2][3:]) 
             )
         except IndexError:
             logging.error("Ошибка ввода. Код валюты отсутвует")
             return Responses.input_err(message="Код валюты отустсвует в адресе")
-        result = self.service.get_rate(
-            basecurrencecode=dto.basecurrencecode, targetcurrencecode=dto.targetcurrencecode
-        )
+        result = self.service.get_rate(dto)
         if result.is_err():
             if isinstance(result.unwrap_err(), ObjectNotFoundError):
                 return Responses.not_found_err(result.unwrap_err().message)
@@ -70,4 +63,4 @@ class RateController(BaseController):
             if isinstance(result.unwrap_err(), InitialError):
                 return Responses.initial_err(result.unwrap_err().message)
             
-        return Responses.success(data=self.format_rates_dto(dto))
+        return Responses.success(data=dto.to_formatted_dict())

@@ -14,26 +14,58 @@ class RatesService():
         self.dao = DaoRates
         self.dao_currencies = DaoCurrencies            
 
-    def get_rate(self, 
-                 basecurrencecode: str, 
-                 targetcurrencecode: str
+    def get_rate_id_by_code(self, 
+                currencycode: str,
         ) -> Result[RatesDTO, ObjectNotFoundError | InitialError]:
         try:
-            basecurrenceid = self.dao_currencies.get_id_by_code(basecurrencecode)
-            targetcurrenceid = self.dao_currencies.get_id_by_code(targetcurrencecode)
-            if not basecurrenceid:
-                return Err(ObjectNotFoundError(obj="rates", field=basecurrenceid))
-            elif not targetcurrenceid:
-                return Err(ObjectNotFoundError(obj="rates", field=targetcurrenceid))
+            currencyid = self.dao_currencies.get_id_by_code(currencycode)
+            if not currencyid:
+                return Err(ObjectNotFoundError(obj="rates", field=currencycode))
+            return Ok(currencyid)
+        
+        except Exception as e:
+            logging.debug(f"Ошибка: {e}")
+            return Err(InitialError())
+
+    def get_rate(self, 
+                dto: RatesDTO
+        ) -> Result[RatesDTO, ObjectNotFoundError | InitialError]:
+        def supplement_res(dto: RatesDTO):
+            dto.basecurrency = asdict(self.dao_currencies.get_by_id(dto.basecurrencyid))
+            dto.targetcurrency = asdict(self.dao_currencies.get_by_id(dto.targetcurrencyid))
+            return dto
+
+        try:
+            dto.basecurrencyid = self.dao_currencies.get_id_by_code(dto.basecurrencycode)
+            dto.targetcurrencyid = self.dao_currencies.get_id_by_code(dto.targetcurrencycode)
+            if not dto.basecurrencyid:
+                return Err(ObjectNotFoundError(obj="rates", field=dto.basecurrencyid))
+            elif not dto.targetcurrencyid:
+                return Err(ObjectNotFoundError(obj="rates", field=dto.targetcurrencyid))
             
+            # Cуществует валютная пара AB - берём её курс
             rate = self.dao.get_by_ids(
-                basecurrencyid=basecurrenceid, targetcurrencyid=targetcurrenceid
-            )
-            if not rate:
-                return Err(ObjectNotFoundError(obj="rate", field=f"({basecurrencecode}, {targetcurrencecode})"))
-            rate.basecurrence = asdict(self.dao_currencies.get_by_id(rate.basecurrenceid))
-            rate.targetcurrence = asdict(self.dao_currencies.get_by_id(rate.targetcurrenceid))
-            return Ok(rate)
+                basecurrencyid=dto.basecurrencyid, targetcurrencyid=dto.targetcurrencyid)
+            if rate:
+                return Ok(supplement_res(rate))
+
+            # Cуществует валютная пара BA - берем её курс, и считаем обратный, чтобы получить AB
+            rate = self.dao.get_by_ids(
+                basecurrencyid=dto.targetcurrencyid, targetcurrencyid=dto.basecurrencyid)
+            if rate:
+                return Ok(supplement_res(rate))
+            
+            # Cуществуют валютные пары USD-A и USD-B - вычисляем из этих курсов курс AB
+            rate1 = self.dao.get_by_ids(
+                basecurrencyid="USD", targetcurrencyid=dto.basecurrencyid)
+            rate2 = self.dao.get_by_ids(
+                basecurrencyid="USD", targetcurrencyid=dto.targetcurrencyid)
+            if rate1 and rate2:
+                dto.rate = rate2.rate / rate1.rate
+                return Ok(supplement_res(dto))
+
+            
+            return Err(ObjectNotFoundError(obj="dto", field=f"({dto.basecurrencycode}, {dto.targetcurrencycode})"))
         
         except Exception as e:
             logging.debug(f"Ошибка: {e}")
@@ -45,8 +77,8 @@ class RatesService():
             if not rates:
                 return Err(ObjectNotFoundError(obj="rates"))
             for i in range(len(rates)):
-                rates[i].basecurrence = asdict(self.dao_currencies.get_by_id(rates[i].basecurrenceid))
-                rates[i].targetcurrence = asdict(self.dao_currencies.get_by_id(rates[i].targetcurrenceid))
+                rates[i].basecurrency = asdict(self.dao_currencies.get_by_id(rates[i].basecurrencyid))
+                rates[i].targetcurrency = asdict(self.dao_currencies.get_by_id(rates[i].targetcurrencyid))
             return Ok(rates)
         
         except Exception as e:
@@ -56,18 +88,18 @@ class RatesService():
             
     def post_rate(self, dto: RatesDTO) -> Result[RatesDTO, InitialError | ObjectAlreadyExists| ObjectNotFoundError]:
         try:
-            dto.basecurrenceid = self.dao_currencies.get_id_by_code(dto.basecurrencecode)
-            dto.targetcurrenceid = self.dao_currencies.get_id_by_code(dto.targetcurrencecode)
-            if not dto.basecurrenceid:
-                return Err(ObjectNotFoundError(obj="rates", field=dto.basecurrenceid))
-            elif not dto.targetcurrenceid:
-                return Err(ObjectNotFoundError(obj="rates", field=dto.targetcurrenceid))
+            dto.basecurrencyid = self.dao_currencies.get_id_by_code(dto.basecurrencycode)
+            dto.targetcurrencyid = self.dao_currencies.get_id_by_code(dto.targetcurrencycode)
+            if not dto.basecurrencyid:
+                return Err(ObjectNotFoundError(obj="rates", field=dto.basecurrencyid))
+            elif not dto.targetcurrencyid:
+                return Err(ObjectNotFoundError(obj="rates", field=dto.targetcurrencyid))
             rate = self.dao.get_by_ids(
-                basecurrencyid=dto.basecurrenceid, targetcurrencyid=dto.targetcurrenceid
+                basecurrencyid=dto.basecurrencyid, targetcurrencyid=dto.targetcurrencyid
             )
             if rate:
                 return Err(ObjectAlreadyExists(
-                    obj="rates", field=f"({dto.basecurrenceid}, {dto.targetcurrenceid})"))
+                    obj="rates", field=f"({dto.basecurrencyid}, {dto.targetcurrencyid})"))
 
 
             rate_id = self.dao.post(dto)
@@ -75,13 +107,13 @@ class RatesService():
                 logging.debug(f"Ошибка сервера")
                 return Err(InitialError())
             dto.id = rate_id
-            bc = self.dao_currencies.get_by_code(dto.basecurrencecode)
-            tc = self.dao_currencies.get_by_code(dto.targetcurrencecode)
+            bc = self.dao_currencies.get_by_code(dto.basecurrencycode)
+            tc = self.dao_currencies.get_by_code(dto.targetcurrencycode)
             if not bc or not tc:
                 return Err(ObjectNotFoundError(
-                    obj="rates", field=f"({dto.basecurrencecode}, {dto.targetcurrencecode})"))
-            dto.basecurrence = asdict(bc)
-            dto.targetcurrence= asdict(tc)
+                    obj="rates", field=f"({dto.basecurrencycode}, {dto.targetcurrencycode})"))
+            dto.basecurrency = asdict(bc)
+            dto.targetcurrency= asdict(tc)
             return Ok(dto)
         
         except Exception as e:

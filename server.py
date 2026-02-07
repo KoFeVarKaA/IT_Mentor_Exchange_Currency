@@ -7,6 +7,7 @@ from urllib.parse import parse_qs, urlparse
 from src.service.service_rates import RatesService
 from src.service.service_currencies import CurrenciesService
 from src.controller.controller_currencies import CurrenciesController
+from src.controller.controller_exchange import ExchangeController
 from src.controller.controller_rate import RateController
 from src.controller.controller_rates import RatesController
 from src.controller.controllet_currency import CurrencyController
@@ -21,6 +22,7 @@ logging.basicConfig(
 )
 
 controllers = {
+    "exchange" : ExchangeController(service=RatesService()), 
     "exchangeRate": RateController(service=RatesService()),
     "exchangeRates": RatesController(service=RatesService()),
     "currency": CurrencyController(service=CurrenciesService()),
@@ -51,7 +53,7 @@ class Server(BaseHTTPRequestHandler):
                 # В данном случае возвращаем массив
                 response = handle_class.do_GET(path)
             # Можно сократить до else
-            elif isinstance(handle_class, (RateController, CurrencyController)):
+            elif isinstance(handle_class, (RateController, CurrencyController, ExchangeController)):
                 # В данном json
                 response = handle_class.do_GET(path, query)
         else:

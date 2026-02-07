@@ -24,11 +24,11 @@ class CurrenciesService():
         return Ok(dto)
             
 
-    def get_currency(self, id: int) -> Result[CurrenciesDTO, ObjectNotFoundError | InitialError]:
+    def get_currency(self, code: str) -> Result[CurrenciesDTO, ObjectNotFoundError | InitialError]:
         try:
-            currency = self.dao.get_by_id(id=id)
+            currency = self.dao.get_by_code(code=code)
             if not currency:
-                return Err(ObjectNotFoundError(obj="currency", field=id))
+                return Err(ObjectNotFoundError(obj="currency", field=code))
             return Ok(currency)
         except Exception as e:
             logging.debug(f"Ошибка: {e}")

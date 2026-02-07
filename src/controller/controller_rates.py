@@ -30,7 +30,7 @@ class RatesController(BaseController):
                 logging.error(f"Ошибка базы данных или сервера")
                 return Responses.initial_err(result.unwrap_err().message)
             
-        data = [self.format_rates_dto(rate) for rate in result.unwrap()]
+        data = [rate.to_formatted_dict() for rate in result.unwrap()]
         return Responses.success(data=data)
     
     def do_POST(
@@ -40,8 +40,8 @@ class RatesController(BaseController):
             ):
         try:
             dto = RatesDTO(
-                basecurrencecode=data["baseCurrencyCode"][0],
-                targetcurrencecode=data["targetCurrencyCode"][0],
+                basecurrencycode=data["baseCurrencyCode"][0],
+                targetcurrencycode=data["targetCurrencyCode"][0],
                 rate=data["rate"][0]
             )
         except KeyError:
@@ -63,12 +63,4 @@ class RatesController(BaseController):
                 logging.error(f"Ошибка базы данных или сервера")
                 return Responses.initial_err(result.unwrap_err().message)
         
-        return Responses.success(data=self.format_rates_dto(result.unwrap()))
-    
-    def format_rates_dto(self, rates_dto: RatesDTO):
-        return {
-            "id": rates_dto.id,
-            "baseCurrency": rates_dto.basecurrence,
-            "targetCurrency": rates_dto.targetcurrence,
-            "rate": rates_dto.rate
-        }
+        return Responses.success(data=result.unwrap().to_formatted_dict())
