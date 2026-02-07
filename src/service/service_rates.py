@@ -53,13 +53,15 @@ class RatesService():
             rate = self.dao.get_by_ids(
                 basecurrencyid=dto.targetcurrencyid, targetcurrencyid=dto.basecurrencyid)
             if rate:
+                rate.rate = 1 / rate.rate
                 return Ok(supplement_res(rate))
             
             # Cуществуют валютные пары USD-A и USD-B - вычисляем из этих курсов курс AB
+            usd_id = self.dao_currencies.get_id_by_code(code="USD")
             rate1 = self.dao.get_by_ids(
-                basecurrencyid="USD", targetcurrencyid=dto.basecurrencyid)
+                basecurrencyid=usd_id, targetcurrencyid=dto.basecurrencyid)
             rate2 = self.dao.get_by_ids(
-                basecurrencyid="USD", targetcurrencyid=dto.targetcurrencyid)
+                basecurrencyid=usd_id, targetcurrencyid=dto.targetcurrencyid)
             if rate1 and rate2:
                 dto.rate = rate2.rate / rate1.rate
                 return Ok(supplement_res(dto))

@@ -23,10 +23,13 @@ class RateController(BaseController):
                 basecurrencycode="".join(path[2][:3]),
                 targetcurrencycode="".join(path[2][3:]),
             )
-        except KeyError:
+        except (KeyError, IndexError):
             logging.error("Ошибка ввода. Отсутствует нужное поле формы")
             return Responses.input_err(
                 message="Отсутствует нужное поле формы")
+        if path[2] == '':
+            logging.error("Ошибка ввода. Код валюты отсутвует")
+            return Responses.input_err(message="Код валюты отустсвует в адресе")
         
         result = self.service.get_rate(dto=dto)
         if result.is_err():
@@ -44,9 +47,10 @@ class RateController(BaseController):
         try:
             dto = RatesDTO(
                 basecurrencycode = "".join(path[2][:3]),
-                targetcurrencycode = "".join(path[2][3:]) 
+                targetcurrencycode = "".join(path[2][3:]),
+                rate = float(data["rate"][0])
             )
-        except IndexError:
+        except (IndexError, KeyError):
             logging.error("Ошибка ввода. Код валюты отсутвует")
             return Responses.input_err(message="Код валюты отустсвует в адресе")
         result = self.service.get_rate(dto)
@@ -56,11 +60,11 @@ class RateController(BaseController):
             elif isinstance(result.unwrap_err(), InitialError):
                 return Responses.initial_err(result.unwrap_err().message)
             
-        dto = result.unwrap()
-        dto.rate = data["rate"][0]
-        result = self.service.update_rate(dto)
+        current_dto = result.unwrap()
+        current_dto.rate = dto.rate 
+        result = self.service.update_rate(current_dto)
         if result.is_err():
             if isinstance(result.unwrap_err(), InitialError):
                 return Responses.initial_err(result.unwrap_err().message)
             
-        return Responses.success(data=dto.to_formatted_dict())
+        return Responses.success(data=current_dto.to_formatted_dict())

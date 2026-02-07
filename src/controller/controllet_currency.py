@@ -22,7 +22,11 @@ class CurrencyController(BaseController):
         except IndexError:
             logging.error("Ошибка ввода. Код валюты отсутвует")
             return Responses.input_err(message="Код валюты отустсвует в адресе")
-        result = self.service.get_currency(id=id)
+        if path[2] == '':
+            logging.error("Ошибка ввода. Код валюты отсутвует")
+            return Responses.input_err(message="Код валюты отустсвует в адресе")
+        
+        result = self.service.get_currency(code=code)
         if result.is_err():
             if isinstance(result.unwrap_err(), ObjectNotFoundError):
                 return Responses.not_found_err(result.unwrap_err().message)
