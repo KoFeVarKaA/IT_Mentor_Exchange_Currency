@@ -9,10 +9,10 @@ from server import Server
 from src.dao.dao_currencies import DaoCurrencies
 
 dao = DaoCurrencies()
-dao.delete_table()
+# dao.delete_table()
 dao.create_table()
 dao = DaoRates()
-dao.delete_table()
+# dao.delete_table()
 dao.create_table()
 
 
