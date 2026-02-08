@@ -63,7 +63,7 @@ class TestCurrencyExchangeAPI:
             assert response.status_code == 201
 
     
-    # Тесты для валют
+    # # Тесты для валют
     def test_get_currencies_success(self):
         response = requests.get(f"{self.BASE_URL}/currencies")
         assert response.status_code == 200

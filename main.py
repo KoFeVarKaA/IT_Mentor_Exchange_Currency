@@ -1,8 +1,6 @@
 import logging
 import os
 from dotenv import load_dotenv
-from dao.dao_currencies import DaoCurrencies
-from dao.dao_rates import DaoRates
 from server import Server
 from http.server import HTTPServer
 

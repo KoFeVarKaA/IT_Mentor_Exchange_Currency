@@ -14,7 +14,7 @@ class DaoRates():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 basecurrencyid INTEGER,
                 targetcurrencyid INTEGER,
-                rate REAL               
+                rate Decimal(6)               
                 );
                 """)
                  
