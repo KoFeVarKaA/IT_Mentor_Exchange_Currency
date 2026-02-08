@@ -183,6 +183,6 @@ tests.py
 /html
 tests2.py
 
-# bd.sql
-# bd_test.sql
+bd.sql
+bd_test.sql
 /currency-exchange-frontend-main
