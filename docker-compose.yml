@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8888
+
+  frontend:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./currency-exchange-frontend-main:/usr/share/nginx/html
+    depends_on:
+      - backend
