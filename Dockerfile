@@ -1,11 +1,12 @@
-FROM python:3.12-slim
+FROM python:3.12-alpine
 
-RUN pip install uv
+COPY . .
+RUN python3 -m pip install --upgrade pip && pip install uv
 RUN uv venv /app/.venv
 ENV PATH=/app/.venv/bin:$PATH
 
 WORKDIR /app
-COPY . .
+
 
 RUN uv sync
 CMD ["python", "main.py"]
