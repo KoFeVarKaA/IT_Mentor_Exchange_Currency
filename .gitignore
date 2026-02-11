@@ -128,7 +128,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-# .env
+.env
 .venv
 env/
 venv/
@@ -183,4 +183,7 @@ tests.py
 /html
 tests2.py
 
+bd_test.sql
+bd.sql
+nginx.conf
 

@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    const host = "http://localhost:8888/"
+    const host = "http://backend:8888/"
 
     // Fetch the list of currencies and populate the select element
     function requestCurrencies() {
