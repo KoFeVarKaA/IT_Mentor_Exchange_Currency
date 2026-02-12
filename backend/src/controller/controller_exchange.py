@@ -20,10 +20,24 @@ class ExchangeController(BaseController):
             self, path, query
         ):
         try:
+            basecurrencycode=query["from"][0]
+            targetcurrencycode=query["to"][0]
+            try:
+                amount = float(query["amount"][0])
+            except:
+                logging.error("Ошибка ввода. Неправильный тип данных")
+                return Responses.input_err(
+                    message="Ошибка ввода. Курс обмена должен состоять из чисел")
+
+            if len(basecurrencycode) != 3 or len(targetcurrencycode) != 3:
+                logging.error("Ошибка ввода. Неправильный вид валюты")
+                return Responses.input_err(
+                    message="Ошибка ввода. Длина кода валюты должна составлять 3 символа")                
+
             dto = RatesDTO(
-                basecurrencycode=query["from"][0],
-                targetcurrencycode=query["to"][0],
-                amount=query["amount"][0]
+                basecurrencycode = basecurrencycode,
+                targetcurrencycode = targetcurrencycode,
+                amount = amount
             )
         except KeyError:
             logging.error("Ошибка ввода. Отсутствует нужное поле формы")
