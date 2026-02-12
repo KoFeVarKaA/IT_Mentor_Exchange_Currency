@@ -109,6 +109,34 @@ class TestCurrencyExchangeAPI:
         response = requests.post(f"{self.BASE_URL}/currencies", data=data)
         assert response.status_code == 409
 
+    def test_post_currency_input_err1(self):
+        data = {
+            "name": "Русский",
+            "code": "RRR", 
+            "sign": "#"
+        }
+        response = requests.post(f"{self.BASE_URL}/currencies", data=data)
+        assert response.status_code == 400
+    
+    def test_post_currency_input_err2(self):
+        data = {
+            "name": "Test_one",
+            "code": "TOOMANY", 
+            "sign": "#"
+        }
+        response = requests.post(f"{self.BASE_URL}/currencies", data=data)
+        assert response.status_code == 400
+
+    def test_post_currency_input_err32(self):
+        data = {
+            "name": "Test_one",
+            "code": "RRR", 
+            "sign": "TOOMANY"
+        }
+        response = requests.post(f"{self.BASE_URL}/currencies", data=data)
+        assert response.status_code == 400
+
+
     # Тесты для обменных курсов
     def test_get_exchange_rates_success(self):
         response = requests.get(f"{self.BASE_URL}/exchangeRates")
@@ -166,6 +194,26 @@ class TestCurrencyExchangeAPI:
         response = requests.post(f"{self.BASE_URL}/exchangeRates", data=data)
         assert response.status_code == 409
 
+    def test_post_exchange_rate_input_err1(self):
+        data = {
+            "baseCurrencyCode": "TOOMANY",
+            "targetCurrencyCode": "RUB",
+            "rate": 1.5
+        }
+        response = requests.post(f"{self.BASE_URL}/exchangeRates", data=data)
+        assert response.status_code == 400
+
+    def test_post_exchange_rate_input_err2(self):
+        data = {
+            "baseCurrencyCode": "EUR",
+            "targetCurrencyCode": "RUB",
+            "rate": "str"
+        }
+        response = requests.post(f"{self.BASE_URL}/exchangeRates", data=data)
+        assert response.status_code == 400
+
+        
+
     def test_patch_exchange_rate_success(self):
         data = {"rate": 2.0}
         response = requests.patch(f"{self.BASE_URL}/exchangeRate/USDTST", data=data)
@@ -181,6 +229,7 @@ class TestCurrencyExchangeAPI:
         data = {}
         response = requests.patch(f"{self.BASE_URL}/exchangeRate/USDTST", data=data)
         assert response.status_code == 400
+
 
     #  Тесты для обмена валюты
     def test_exchange_success_direct(self):

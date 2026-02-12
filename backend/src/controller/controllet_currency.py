@@ -1,4 +1,3 @@
-from dataclasses import asdict
 import logging
 from src.errors import InitialError, ObjectNotFoundError
 from src.response import Responses
@@ -32,4 +31,4 @@ class CurrencyController(BaseController):
                 return Responses.not_found_err(result.unwrap_err().message)
             elif isinstance(result.unwrap_err(), InitialError):
                 return Responses.initial_err(result.unwrap_err().message)
-        return Responses.success(data=asdict(result.unwrap()))
+        return Responses.success(data=result.unwrap().to_formatted_dict())

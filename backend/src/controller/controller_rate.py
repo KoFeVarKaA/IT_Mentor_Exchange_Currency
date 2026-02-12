@@ -1,5 +1,5 @@
 import logging
-from dataclasses import asdict
+
 
 from src.dto.dto_rates import RatesDTO
 from src.errors import InitialError, ObjectNotFoundError
@@ -45,14 +45,29 @@ class RateController(BaseController):
             data: dict,
             ):
         try:
-            dto = RatesDTO(
-                basecurrencycode = "".join(path[2][:3]),
-                targetcurrencycode = "".join(path[2][3:]),
+            basecurrencycode = "".join(path[2][:3])
+            targetcurrencycode = "".join(path[2][3:])
+            try:
                 rate = float(data["rate"][0])
+            except:
+                logging.error("Ошибка ввода. Неправильный тип данных")
+                return Responses.input_err(
+                    message="Ошибка ввода. Курс обмена должен состоять из чисел")
+
+            if len(basecurrencycode) != 3 or len(targetcurrencycode) != 3:
+                logging.error("Ошибка ввода. Неправильный вид валюты")
+                return Responses.input_err(
+                    message="Ошибка ввода. Длина кода валюты должна составлять 3 символа")
+
+            dto = RatesDTO(
+                basecurrencycode = basecurrencycode,
+                targetcurrencycode = targetcurrencycode,
+                rate = rate
             )
         except (IndexError, KeyError):
             logging.error("Ошибка ввода. Код валюты отсутвует")
             return Responses.input_err(message="Код валюты отустсвует в адресе")
+
         result = self.service.get_rate(dto)
         if result.is_err():
             if isinstance(result.unwrap_err(), ObjectNotFoundError):

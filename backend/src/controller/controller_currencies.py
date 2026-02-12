@@ -1,4 +1,4 @@
-from dataclasses import asdict
+
 import logging
 
 from src.errors import InitialError, ObjectAlreadyExists, ObjectNotFoundError
@@ -15,7 +15,6 @@ class CurrenciesController(BaseController):
         ):
         self.service = service
 
-
     def do_GET(
             self, path
         ):
@@ -29,7 +28,7 @@ class CurrenciesController(BaseController):
             elif isinstance(result.unwrap_err(), InitialError):
                 logging.error(f"Ошибка базы данных или сервера")
                 return Responses.initial_err(result.unwrap_err().message)
-        data = [asdict(currency) for currency in result.unwrap()]
+        data = [currency.to_formatted_dict() for currency in result.unwrap()]
         return Responses.success(data=data)
 
 
@@ -39,10 +38,36 @@ class CurrenciesController(BaseController):
             data: dict,
             ):
         try:
+            code=data["code"][0]
+            fullname=data["name"][0]
+            sign=data["sign"][0]
+            
+            available_letters_code = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            available_letters_name = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "
+            if len(sign) != 1:
+                logging.error("Ошибка ввода. Неправильный вид валюты")
+                return Responses.input_err(
+                    message="Ошибка ввода. Знак валюты должен состоять из одного символа")
+            if len(code) != 3:
+                logging.error("Ошибка ввода. Неправильный вид валюты")
+                return Responses.input_err(
+                    message="Ошибка ввода. Длина кода валюты должна составлять 3 символа")
+
+            for letter in code:
+                if letter not in available_letters_code:
+                    logging.error("Ошибка ввода. Присутствуют неожиданные символы")
+                    return Responses.input_err(
+                        message="Ошибка ввода. Код может состоять только из английский заглавных букв")
+            for letter in fullname:
+                if letter not in available_letters_name:
+                    logging.error("Ошибка ввода. Присутствуют неожиданные символы")
+                    return Responses.input_err(
+                        message="Ошибка ввода. Имя валюты может содержать только английские буквы")
+
             dto = CurrenciesDTO(
-                code=data["code"][0],
-                fullname=data["name"][0],
-                sign=data["sign"][0]
+                code=code,
+                fullname=fullname,
+                sign=sign
             )
         except KeyError:
             logging.error("Ошибка ввода. Отсутствует нужное поле формы")
@@ -59,4 +84,4 @@ class CurrenciesController(BaseController):
                 logging.error(f"Ошибка базы данных или сервера")
                 return Responses.initial_err(result.unwrap_err().message)
             
-        return Responses.success(data=asdict(result.unwrap()))
+        return Responses.success(data=result.unwrap().to_formatted_dict())

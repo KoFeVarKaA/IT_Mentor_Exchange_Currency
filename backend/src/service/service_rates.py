@@ -1,4 +1,4 @@
-from dataclasses import asdict
+
 import logging
 from result import Result, Ok, Err
 
@@ -35,8 +35,8 @@ class RatesService():
                 dto: RatesDTO
         ) -> Result[RatesDTO, ObjectNotFoundError | InitialError]:
         def supplement_res(dto: RatesDTO):
-            dto.basecurrency = asdict(self.dao_currencies.get_by_id(dto.basecurrencyid))
-            dto.targetcurrency = asdict(self.dao_currencies.get_by_id(dto.targetcurrencyid))
+            dto.basecurrency = self.dao_currencies.get_by_id(dto.basecurrencyid).to_formatted_dict()
+            dto.targetcurrency = self.dao_currencies.get_by_id(dto.targetcurrencyid).to_formatted_dict()
             return dto
 
         try:
@@ -83,8 +83,8 @@ class RatesService():
             if not rates:
                 return Err(ObjectNotFoundError(obj="rates"))
             for i in range(len(rates)):
-                rates[i].basecurrency = asdict(self.dao_currencies.get_by_id(rates[i].basecurrencyid))
-                rates[i].targetcurrency = asdict(self.dao_currencies.get_by_id(rates[i].targetcurrencyid))
+                rates[i].basecurrency = self.dao_currencies.get_by_id(rates[i].basecurrencyid).to_formatted_dict()
+                rates[i].targetcurrency = self.dao_currencies.get_by_id(rates[i].targetcurrencyid).to_formatted_dict()
             return Ok(rates)
         
         except Exception as e:
@@ -118,8 +118,8 @@ class RatesService():
             if not bc or not tc:
                 return Err(ObjectNotFoundError(
                     obj="rates", field=f"({dto.basecurrencycode}, {dto.targetcurrencycode})"))
-            dto.basecurrency = asdict(bc)
-            dto.targetcurrency= asdict(tc)
+            dto.basecurrency = bc.to_formatted_dict()
+            dto.targetcurrency= tc.to_formatted_dict()
             return Ok(dto)
         
         except Exception as e:

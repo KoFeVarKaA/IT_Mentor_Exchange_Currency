@@ -44,11 +44,9 @@ class Server(BaseHTTPRequestHandler):
         if path[1] in self.controllers:
             handle_class = self.controllers[path[1]]
             if isinstance(handle_class, (RatesController, CurrenciesController)):
-                # В данном случае возвращаем массив
                 response = handle_class.do_GET(path)
             # Можно сократить до else
             elif isinstance(handle_class, (RateController, CurrencyController, ExchangeController)):
-                # В данном json
                 response = handle_class.do_GET(path, query)
         else:
             message = (

@@ -1,4 +1,4 @@
-from dataclasses import asdict
+
 import logging
 
 from src.dto.dto_rates import RatesDTO
@@ -39,15 +39,38 @@ class RatesController(BaseController):
             data: dict,
             ):
         try:
+            basecurrencycode=data["baseCurrencyCode"][0]
+            targetcurrencycode=data["targetCurrencyCode"][0]
+            try:
+                rate = float(data["rate"][0])
+            except:
+                logging.error("Ошибка ввода. Неправильный тип данных")
+                return Responses.input_err(
+                    message="Ошибка ввода. Курс обмена должен состоять из чисел")
+
+            if len(basecurrencycode) != 3 or len(targetcurrencycode) != 3:
+                logging.error("Ошибка ввода. Неправильный вид валюты")
+                return Responses.input_err(
+                    message="Ошибка ввода. Длина кода валюты должна составлять 3 символа")                
+
             dto = RatesDTO(
-                basecurrencycode=data["baseCurrencyCode"][0],
-                targetcurrencycode=data["targetCurrencyCode"][0],
-                rate=data["rate"][0]
+                basecurrencycode = basecurrencycode,
+                targetcurrencycode = targetcurrencycode,
+                rate = rate
             )
         except KeyError:
             logging.error("Ошибка ввода. Отсутствует нужное поле формы")
             return Responses.input_err(
                 message="Отсутствует нужное поле формы")
+        
+        if len(dto.basecurrencycode) != 3 or len(dto.basecurrencycode) != 3:
+            logging.error("Ошибка ввода. Неправильный вид валюты")
+            return Responses.input_err(
+                message="Ошибка ввода. Длина кода валюты должна составлять 3 символа")
+        if not isinstance(dto.rate, float):
+            logging.error("Ошибка ввода. Неправильный тип данных")
+            return Responses.input_err(
+                message="Ошибка ввода. Курс обмена должен состоять из чисел")
         
         result = self.service.post_rate(dto)
         if result.is_err():
