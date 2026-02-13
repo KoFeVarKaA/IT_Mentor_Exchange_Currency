@@ -11,6 +11,7 @@ REST API для описания валют и обменных курсов. П
 #### 1. Через Docker
 
 (Предполагается что Docker desctop установлен и запущен)
+
 Измените настройки frontend, файл app.js в папке frontend/js
 ```
 const host = "http://ваш_ip/api"
