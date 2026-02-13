@@ -186,6 +186,4 @@ tests2.py
 bd_test.sql
 bd.sql
 nginx.conf
-
-nginx.conf
 frontend/js/app.js
