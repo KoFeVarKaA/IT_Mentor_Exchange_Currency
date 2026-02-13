@@ -10,9 +10,20 @@ REST API для описания валют и обменных курсов. П
 
 #### 1. Через Docker
 
+(Предполагается что Docker desctop установлен и запущен)
+Измените настройки frontend, файл app.js в папке frontend/js
+```
+const host = "http://ваш_ip/api"
+```
+Измените настройки nginx, файл nginx.conf в главной папке
+```
+server_name  ваш_ip;
+```
+Запустите докер с помощью консоли:
 ```
 docker-compose up --build
 ```
+Теперь сайт будет доступен по адресу http://ваш_ip/
 
 #### 2. Через терминал
 
@@ -23,6 +34,16 @@ SERVER_HOST='127.0.0.1'
 Измените настройки frontend, файл app.js в папке frontend/js
 ```
 const host = "http://127.0.0.1:8888/"
+```
+Установите необходимые библиотеки и запустите виртуальное окружение
+```
+python3 -m pip install --upgrade pip && pip install uv
+uv venv /app/.venv
+uv sync
+```
+Активируйте venv
+```
+.\.venv\scripts\activate
 ```
 Запустите backend:
 ```
@@ -38,6 +59,17 @@ python backend/main.py
 Измените настройки frontend, файл app.js в папке frontend/js
 ```
 const host = "http://127.0.0.1:8888/"
+```
+Установите необходимые библиотеки и запустите виртуальное окружение
+```
+python3 -m pip install --upgrade pip 
+pip install uv
+uv venv /app/.venv
+uv sync
+```
+Активируйте venv
+```
+.\.venv\scripts\activate
 ```
 Запустите тестовый backend:
 ```
