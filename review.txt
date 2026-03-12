@@ -1,0 +1,29 @@
+Немного прошелся по коду:
+
+1. service_rates.py 
+except Exception as e:
+            logging.debug(f"Ошибка: {e}")
+            return Err(InitialError())
+Обработку общих исключений лучше отправлять в general exception handler/wrapper.
+Для Service Layer нужно больше конкретики. Тут у тебя DAO, который работает с sqllite. Будет предпочтительнее:
+except sqllite3.Error:
+            logging.exception("Ошибка БД при получении курса")
+            return Err(InitialError())
+2. service_currencies.py см. пункт 1 
+3. roter.py Ошибка typo (router). Дублируется с roter_test.py Лучше создать controller_factory и переиспользовать в этих местах.
+4. dto_rates.py В тайпхинтах не хватает указания что поля опциональные. 
+5. dao_rates.py Неверно указаны тайпхинты в аргументах методов (str/int).
+Неверно указаны тайпхинты, которые возвращают функции
+6. dao_currencies.py, такая же проблема как в dto_rates/dao_rates
+7. controller_base.py Не хватает указания, что методы абстрактные. Можно использовать ABC/Protocol. Плюс нужно указать аргументы для методов. 
+8. response.py Лучше объявить методы как статичные (декоратор @staticmethod). Указать какой тип данных возвращает каждый метод. Можно сразу возвращать словарь, без объявления переменной. 
+9. server.py Использование if isinstance тут будет излишним. 
+ if isinstance(handle_class, (RatesController, CurrenciesController)):
+Используя данную конструкцию ты явно привязываешься к объектам контроллеров. Для методов самих контроллеров ты можешь сделать query опциональным. Тогда будет достаточно проверить:
+if method_name == "do_GET":
+             return method(path, query)
+И сейчас методы do_GET, do_POST, do_PATCH дублируют код. Основную логику можно сократить до одного метода. Например _dispatch. GET path + query, POST/PATCH path + data
+
+В целом реализация достаточно чистая. Четкое разделение слоев. Ошибки хранятся централизованно. Чистые DTO. 👍
+
+По логическим элементах не проходился.

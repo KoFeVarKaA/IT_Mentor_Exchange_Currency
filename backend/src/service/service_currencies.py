@@ -1,6 +1,7 @@
 import logging
 from result import Result, Ok, Err
 
+from src.utils.exception_handler import exception_handler
 from src.dao.dao_currencies import DaoCurrencies
 from src.errors import InitialError, ObjectAlreadyExists, ObjectNotFoundError
 from src.dto.dto_currencies import CurrenciesDTO
@@ -23,27 +24,19 @@ class CurrenciesService():
         dto.id = currency_id
         return Ok(dto)
             
-
+    @exception_handler
     def get_currency(self, code: str) -> Result[CurrenciesDTO, ObjectNotFoundError | InitialError]:
-        try:
-            currency = self.dao.get_by_code(code=code)
-            if not currency:
-                return Err(ObjectNotFoundError(obj="currency", field=code))
-            return Ok(currency)
-        except Exception as e:
-            logging.debug(f"Ошибка: {e}")
-            return Err(InitialError())
+        currency = self.dao.get_by_code(code=code)
+        if not currency:
+            return Err(ObjectNotFoundError(obj="currency", field=code))
+        return Ok(currency)
 
-
+    @exception_handler
     def get_currencies(self) -> Result[list[CurrenciesDTO], ObjectNotFoundError | InitialError]:
-        try:
-            currencies = self.dao.get_all()
-            if not currencies:
-                return Err(ObjectNotFoundError(obj="currencies"))
-            return Ok(currencies)
-        except Exception as e:
-            logging.debug(f"Ошибка: {e}")
-            return Err(InitialError())
+        currencies = self.dao.get_all()
+        if not currencies:
+            return Err(ObjectNotFoundError(obj="currencies"))
+        return Ok(currencies)
 
     def update_currency(self, id: int, data: dict) -> Result[None, None]:
         pass

@@ -37,99 +37,56 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        logging.debug(f"GET {"/".join(map(str, self.client_address))}{self.path}")
+        self._process_request("GET")
+
+    def do_POST(self):
+        self._process_request("POST")
+
+    def do_PATCH(self):
+        self._process_request("PATCH")
+        
+    def _process_request(self, command: str):
+        logging.debug(f"{self.command} {self.client_address}{self.path}")
         parsed_url = urlparse(self.path)
         path = parsed_url.path.split("/")
         query = parse_qs(parsed_url.query)
-        if path[1] in self.controllers:
-            handle_class = self.controllers[path[1]]
-            if isinstance(handle_class, (RatesController, CurrenciesController)):
-                response = handle_class.do_GET(path)
-            # Можно сократить до else
-            elif isinstance(handle_class, (RateController, CurrencyController, ExchangeController)):
-                response = handle_class.do_GET(path, query)
-        else:
-            message = (
-        f"К сожалению, сервер не обрабатывает запросы по данному адресу"
-            )
-            response = Responses.initial_err(message)
-        
-        if response["status_code"] == 200:
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Cache-Control", "no-cache")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
-
-            self.wfile.write(json.dumps(response["data"]).encode("utf-8"))
-        else:
-            self.send_error_response(response)
-
-
-    def do_POST(self):
-        logging.debug(f"POST {"/".join(map(str, self.client_address))}{self.path}")
-        parsed_url = urlparse(self.path)
-        path = parsed_url.path.split("/")
         content_length = int(self.headers.get('Content-Length', 0))
         data = parse_qs(self.rfile.read(content_length).decode('utf-8'))
-        if path[1] in self.controllers:
-            handle_class = self.controllers[path[1]]
-            # Можно потом убрать
-            if isinstance(handle_class, (RatesController, CurrenciesController)):
-                response = handle_class.do_POST(path, data)
-        else:
-            message = (
-        f"К сожалению, сервер не обрабатывает запросы по данному адресу"
-            )
-            response = Responses.initial_err(message)
+
+        if path[1] not in self.controllers:
+            message = "К сожалению, сервер не обрабатывает запросы по данному адресу"
+            self._send_response(Responses.initial_err(message))
+            return
         
-        if response["status_code"] == 200:
-            self.send_response(201)
-            self.send_header("Content-Type", "application/json")
+        handle_class = self.controllers[path[1]]
+        if  command == "GET":
+            response = handle_class.do_GET(path, query)
+        elif command == "POST":
+            response = handle_class.do_POST(path, data)
+        elif command == "PATCH":
+            response = handle_class.do_PATCH(path, data)
+        self._send_response(response)
+
+    def _send_response(self, response: dict):
+        if 200 <= response["status_code"] <= 201:
+            logging.info("Запрос успешно выполнен")
+
+            self.send_response(response["status_code"])
+            self.send_header("Content-Type", "text/html")
             self.send_header("Cache-Control", "no-cache")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
 
             self.wfile.write(json.dumps(response["data"]).encode("utf-8"))
         else:
-            self.send_error_response(response)
+            logging.error(f"{response['data']['message']}")
+            self._send_error_response(response)
 
-
-    def do_PATCH(self):
-        logging.debug(f"PATCH {self.client_address}{self.path}")
-        parsed_url = urlparse(self.path)
-        path = parsed_url.path.split("/")
-        content_length = int(self.headers.get('Content-Length', 0))
-        data = parse_qs(self.rfile.read(content_length).decode('utf-8'))
-        if path[1] in self.controllers:
-            handle_class = self.controllers[path[1]]
-            # Можно потом убрать
-            if isinstance(handle_class, (RateController)):
-                response = handle_class.do_PATCH(path, data)
-        else:
-            message = (
-        f"К сожалению, сервер не обрабатывает запросы по данному адресу"
-            )
-            response = Responses.initial_err(message)
-        
-        if response["status_code"] == 200:
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Cache-Control", "no-cache")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
-
-            self.wfile.write(json.dumps(response["data"]).encode("utf-8"))
-        else:
-            self.send_error_response(response)
-        
-
-
-    def send_error_response(self, response: dict):
+    def _send_error_response(self, response: dict):
         self.send_response(response["status_code"])
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         response = {"code": str(response["status_code"]), 
                     "status": "Ошибка", 
-                    "message": response["message"]}
+                    "message": response["data"]["message"]}
         self.wfile.write(json.dumps(response).encode("utf-8"))

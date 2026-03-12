@@ -1,22 +1,20 @@
 from dataclasses import dataclass
-
+from typing import Optional, Dict, Any
 
 @dataclass(slots=True)
-class RatesDTO():
-    
-    id : int = None
-    rate : float = None
-    amount : float = None
-    converted_amount : float = None
-    basecurrencyid : str = None
-    targetcurrencyid : str = None
-    basecurrencycode : str = None
-    targetcurrencycode : str = None
-    basecurrency : dict = None
-    targetcurrency : dict = None
-    
+class RatesDTO:
+    id: Optional[int] = None
+    rate: Optional[float] = None
+    amount: Optional[float] = None
+    converted_amount: Optional[float] = None
+    basecurrencyid: Optional[str] = None
+    targetcurrencyid: Optional[str] = None
+    basecurrencycode: Optional[str] = None
+    targetcurrencycode: Optional[str] = None
+    basecurrency: Optional[Dict[str, Any]] = None
+    targetcurrency: Optional[Dict[str, Any]] = None
 
-    def to_formatted_dict(self):
+    def to_formatted_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "baseCurrency": self.basecurrency,
@@ -24,7 +22,7 @@ class RatesDTO():
             "rate": self.rate
         }
 
-    def to_formatted_dict_exchange(self):
+    def to_formatted_dict_exchange(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "baseCurrency": self.basecurrency,
@@ -33,3 +31,4 @@ class RatesDTO():
             "amount": self.amount,
             "convertedAmount": self.converted_amount
         }
+

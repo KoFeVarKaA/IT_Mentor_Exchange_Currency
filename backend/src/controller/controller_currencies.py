@@ -16,7 +16,7 @@ class CurrenciesController(BaseController):
         self.service = service
 
     def do_GET(
-            self, path
+            self, path, query,
         ):
         result = self.service.get_currencies()
 
@@ -84,4 +84,5 @@ class CurrenciesController(BaseController):
                 logging.error(f"Ошибка базы данных или сервера")
                 return Responses.initial_err(result.unwrap_err().message)
             
-        return Responses.success(data=result.unwrap().to_formatted_dict())
+        return Responses.success(
+                data=result.unwrap().to_formatted_dict(), status_code=201)

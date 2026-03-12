@@ -13,8 +13,8 @@ from src.service.service_rates import RatesService
 
 load_dotenv()
 
-database = os.getenv('DATABASE')
-controllers = {
+def controller_factory(database: str):
+    return {
     "exchange" : ExchangeController(
         service=RatesService(DaoRates(database=database), DaoCurrencies(database=database))
     ), 

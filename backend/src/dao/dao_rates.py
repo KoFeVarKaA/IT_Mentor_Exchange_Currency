@@ -1,13 +1,14 @@
 import sqlite3
+from typing import List, Optional
 
 from src.dto.dto_rates import RatesDTO
 
 
 class DaoRates():
-    def __init__(self, database: str):
+    def __init__(self, database: str) -> None:
         self.database = database
 
-    def create_table(self):
+    def create_table(self) -> None:
         with sqlite3.connect(self.database) as conn:
             cur = conn.cursor()
             cur.execute("""CREATE TABLE rates(
@@ -18,7 +19,7 @@ class DaoRates():
                 );
                 """)
                  
-    def delete_table(self):
+    def delete_table(self) -> None:
         with sqlite3.connect(self.database) as conn:
             cur = conn.cursor()
             cur.execute("""DROP TABLE rates;""")
@@ -34,7 +35,7 @@ class DaoRates():
                 id = cur.lastrowid
         return id
 
-    def get_by_id(self, id: str) -> RatesDTO:
+    def get_by_id(self, id: str) -> Optional[RatesDTO]:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
@@ -54,7 +55,7 @@ class DaoRates():
     
     def get_by_ids(
             self, basecurrencyid:str, targetcurrencyid:str
-        ) ->RatesDTO:
+        ) -> Optional[RatesDTO]:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
@@ -73,7 +74,7 @@ class DaoRates():
             rate=result[0][3]
         )
     
-    def get_all(self) -> list[RatesDTO]:
+    def get_all(self) -> Optional[List[RatesDTO]]:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
@@ -90,7 +91,7 @@ class DaoRates():
             rate=row[3]
         ) for row in rows]
     
-    def update(self, id: int, dto: RatesDTO):
+    def update(self, id: int, dto: RatesDTO) -> None:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
@@ -103,7 +104,7 @@ class DaoRates():
                 """,
                 (dto.basecurrencyid, dto.targetcurrencyid, dto.rate, dto.id))
 
-    def update_rate(self, dto: RatesDTO):
+    def update_rate(self, dto: RatesDTO) -> None:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
@@ -114,7 +115,7 @@ class DaoRates():
                 """,
                 (dto.rate, dto.id))
     
-    def delete(self, id: int):
+    def delete(self, id: int) -> None:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
