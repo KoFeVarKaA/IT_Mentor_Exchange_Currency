@@ -11,35 +11,36 @@ from src.dto.dto_currencies import CurrenciesDTO
 class CurrenciesService():
     def __init__(self, dao: DaoCurrencies):
         self.dao = dao
-        
-    def post_currencies(self, dto: CurrenciesDTO) -> Result[CurrenciesDTO, InitialError | ObjectAlreadyExists]:
+
+    @exception_handler 
+    def post_currencies(self, dto: CurrenciesDTO) -> CurrenciesDTO:
         currency = self.dao.get_by_code(code=dto.code)
         if currency:
-            return Err(ObjectAlreadyExists(obj="currencies", field=dto.code))
+            raise ObjectAlreadyExists(obj="currencies", field=dto.code)
         
         currency_id = self.dao.post(dto)
         if not currency_id:
             logging.debug(f"Ошибка сервера")
-            return Err(InitialError())
+            raise InitialError()
         dto.id = currency_id
-        return Ok(dto)
+        return dto
             
     @exception_handler
-    def get_currency(self, code: str) -> Result[CurrenciesDTO, ObjectNotFoundError | InitialError]:
+    def get_currency(self, code: str) -> CurrenciesDTO:
         currency = self.dao.get_by_code(code=code)
         if not currency:
-            return Err(ObjectNotFoundError(obj="currency", field=code))
-        return Ok(currency)
+            raise ObjectNotFoundError(obj="currency", field=code)
+        return currency
 
     @exception_handler
-    def get_currencies(self) -> Result[list[CurrenciesDTO], ObjectNotFoundError | InitialError]:
+    def get_currencies(self) -> list[CurrenciesDTO]:
         currencies = self.dao.get_all()
         if not currencies:
-            return Err(ObjectNotFoundError(obj="currencies"))
-        return Ok(currencies)
+            raise ObjectNotFoundError(obj="currencies")
+        return currencies
 
-    def update_currency(self, id: int, data: dict) -> Result[None, None]:
+    def update_currency(self, id: int, data: dict):
         pass
     
-    def delete_currency(self, id: int) -> Result[None, None]:
+    def delete_currency(self, id: int):
         pass

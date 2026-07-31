@@ -1,6 +1,7 @@
 import sqlite3
 from typing import Any, Optional
 
+from src.errors import ObjectNotFoundError
 from src.dto.dto_currencies import CurrenciesDTO
 
 
@@ -33,9 +34,11 @@ class DaoCurrencies():
                 VALUES (?, ?, ?);
                 """, (dto.code, dto.fullname, dto.sign))
                 currency_id = cur.lastrowid
+        if not currency_id:
+            raise ObjectNotFoundError(obj="currency")
         return currency_id
 
-    def get_by_id(self, id: str) -> Optional[CurrenciesDTO]:
+    def get_by_id(self, id: str) -> CurrenciesDTO:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
@@ -45,7 +48,7 @@ class DaoCurrencies():
                 (id,))
                 result = cur.fetchall()
         if not result:
-            return []
+            raise ObjectNotFoundError(obj="currency")
         return CurrenciesDTO(
             id=result[0][0],
             code=result[0][1],
@@ -53,7 +56,7 @@ class DaoCurrencies():
             sign=result[0][3]
         )
     
-    def get_id_by_code(self, code: str) -> Optional[int]:
+    def get_id_by_code(self, code: str) -> str:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
@@ -63,10 +66,10 @@ class DaoCurrencies():
                 (code,))
                 result = cur.fetchall()
         if not result:
-            return []
+            raise ObjectNotFoundError(obj="currency")
         return result[0][0]
 
-    def get_by_code(self, code: str) -> Optional[CurrenciesDTO]:
+    def get_by_code(self, code: str) -> CurrenciesDTO:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
@@ -76,7 +79,7 @@ class DaoCurrencies():
                 (code,))
                 result = cur.fetchall()
         if not result:
-            return []
+            raise ObjectNotFoundError(obj="currency")
         return CurrenciesDTO(
             id=result[0][0],
             code=result[0][1],
@@ -84,7 +87,7 @@ class DaoCurrencies():
             sign=result[0][3]
         )
     
-    def get_all(self, ) -> Optional[list[CurrenciesDTO]]:
+    def get_all(self, ) -> list[CurrenciesDTO]:
         with sqlite3.connect(self.database) as conn:
             with conn:
                 cur = conn.cursor()
@@ -93,7 +96,7 @@ class DaoCurrencies():
                 """)
                 rows = cur.fetchall()
         if not rows:
-            return None
+            raise ObjectNotFoundError(obj="currency")
         return [CurrenciesDTO(
             id=row[0],
             code=row[1],

@@ -1,6 +1,7 @@
 import sqlite3
 from typing import List, Optional
 
+from src.errors import ObjectNotFoundError
 from src.dto.dto_rates import RatesDTO
 
 
@@ -33,6 +34,8 @@ class DaoRates():
                 VALUES (?, ?, ?);
                 """, (dto.basecurrencyid, dto.targetcurrencyid, dto.rate))
                 id = cur.lastrowid
+        if not id:
+            raise ObjectNotFoundError(obj="rate") 
         return id
 
     def get_by_id(self, id: str) -> Optional[RatesDTO]:

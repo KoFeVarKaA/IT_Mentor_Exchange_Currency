@@ -1,6 +1,9 @@
+from typing import Any
+
+
 class Responses():
     @staticmethod
-    def success(data: dict = None, status_code: int = 200):
+    def success(data: Any = None, status_code: int = 200):
         respons_data = {
             "data": data,
             "status_code": status_code

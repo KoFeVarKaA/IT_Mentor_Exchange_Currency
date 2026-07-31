@@ -9,8 +9,9 @@ from src.roters.roter import controller_factory
 
 load_dotenv() 
 
-host, port = os.getenv('SERVER_HOST'), int(os.getenv('SERVER_PORT'))
-server =  HTTPServer((host, port), lambda *args, **kwargs: Server(controller_factory(os.getenv('DATABASE')), *args, **kwargs))
+host, port = os.getenv('SERVER_HOST_TEST'), int(os.getenv('SERVER_PORT_TEST')) # type: ignore
+server =  HTTPServer((host, port),  # type: ignore
+    lambda *args, **kwargs: Server(controller_factory(os.getenv('DATABASE_TEST')), *args, **kwargs)) # type: ignore
 
 if __name__ == "__main__":
     try:

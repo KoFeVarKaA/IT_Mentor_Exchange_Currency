@@ -10,7 +10,7 @@ class CurrenciesDTO():
     sign : str
     id : Optional[int] = None
 
-    def to_formatted_dict(self):
+    def to_formatted_dict(self) -> dict:
         return {
             "id": self.id,
             "name": self.fullname,

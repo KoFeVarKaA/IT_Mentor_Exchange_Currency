@@ -1,18 +1,18 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Dict, Any
 
 @dataclass(slots=True)
 class RatesDTO:
-    id: Optional[int] = None
-    rate: Optional[float] = None
-    amount: Optional[float] = None
-    converted_amount: Optional[float] = None
-    basecurrencyid: Optional[str] = None
-    targetcurrencyid: Optional[str] = None
-    basecurrencycode: Optional[str] = None
-    targetcurrencycode: Optional[str] = None
-    basecurrency: Optional[Dict[str, Any]] = None
-    targetcurrency: Optional[Dict[str, Any]] = None
+    id: int = 0
+    rate: float = 0.0
+    amount: float = 0.0
+    converted_amount: float = 0.0
+    basecurrencyid: str = "None"
+    targetcurrencyid: str = "None"
+    basecurrencycode: str = "None"
+    targetcurrencycode: str = "None"
+    basecurrency: Dict[str, Any] = field(default_factory=dict)
+    targetcurrency: Dict[str, Any] = field(default_factory=dict)
 
     def to_formatted_dict(self) -> Dict[str, Any]:
         return {
