@@ -189,8 +189,12 @@ $(document).ready(function() {
         $.ajax({
             url: `${host}/exchange?from=${baseCurrency}&to=${targetCurrency}&amount=${amount}`,
             type: "GET",
+            dataType: "json",  
             // data: "$("#add-exchange-rate").serialize()",
             success: function(data) {
+                if (typeof data === "string") {
+                    data = JSON.parse(data);  
+                }
                 $("#convert-converted-amount").val(data.convertedAmount);
             },
             error: function(jqXHR, textStatus, errorThrown) {
