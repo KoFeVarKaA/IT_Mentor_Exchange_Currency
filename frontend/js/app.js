@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    const host = "http://ваш_ip/api"
+    const host = "http://127.0.0.1:80/"
 
     // Fetch the list of currencies and populate the select element
     function requestCurrencies() {

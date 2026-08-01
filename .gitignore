@@ -187,3 +187,4 @@ bd_test.sql
 bd.sql
 nginx.conf
 frontend/js/app.js
+*.sql

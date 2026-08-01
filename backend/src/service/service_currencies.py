@@ -14,17 +14,17 @@ class CurrenciesService():
 
     @exception_handler 
     def post_currencies(self, dto: CurrenciesDTO) -> CurrenciesDTO:
-        currency = self.dao.get_by_code(code=dto.code)
-        if currency:
-            raise ObjectAlreadyExists(obj="currencies", field=dto.code)
+        try:
+            self.dao.get_by_code(code=dto.code)
+        except ObjectNotFoundError:
+            currency_id = self.dao.post(dto)
+            if not currency_id:
+                logging.debug(f"Ошибка сервера")
+                raise InitialError()
+            dto.id = currency_id
+            return dto
+        raise ObjectAlreadyExists(obj="currencies", field=dto.code)
         
-        currency_id = self.dao.post(dto)
-        if not currency_id:
-            logging.debug(f"Ошибка сервера")
-            raise InitialError()
-        dto.id = currency_id
-        return dto
-            
     @exception_handler
     def get_currency(self, code: str) -> CurrenciesDTO:
         currency = self.dao.get_by_code(code=code)

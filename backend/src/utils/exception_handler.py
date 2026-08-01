@@ -6,7 +6,7 @@ import logging
 from result import Err, Result
 
 from src.response import Responses
-from src.errors import InitialError, ObjectNotFoundError
+from src.errors import InitialError, ObjectAlreadyExists, ObjectNotFoundError
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -23,33 +23,7 @@ def exception_handler(func: Callable[P, T]) -> Callable[P, T]:
 
         except Exception as e:
             logging.debug(f"Ошибка: {e}")
-            raise InitialError()
-    return wrapper
-
-def handle_errors_controller(func: Callable[P, T]) -> Callable[P, Any]:
-    @functools.wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
-        try:
-            return func(*args, **kwargs)
-        except (IndexError, KeyError) as e:
-            logging.error(f"Ошибка ввода. Код валюты отсутствует: {e}")
-            return Responses.input_err(message="Код валюты отсутствует в адресе")
-        
-        except ValueError as e:
-            logging.error(f"Ошибка ввода: {e}")
-            return Responses.input_err(message=str(e))
-        
-        except ObjectNotFoundError as e:
-            logging.error(f"Объект не найден: {e}")
-            return Responses.not_found_err(e.message)
-        
-        except InitialError as e:
-            logging.error(f"Инициализационная ошибка: {e}")
-            return Responses.initial_err(e.message)
-        
-        except Exception as e:
-            logging.error(f"Неожиданная ошибка: {e}")
-            return Responses.initial_err(message="Внутренняя ошибка сервера")
+            raise e
     return wrapper
 
 class ControllerErrorsHandlertype(type):
@@ -71,9 +45,13 @@ class ControllerErrorsHandlertype(type):
             except ObjectNotFoundError as e:
                 logging.error(f"Объект не найден: {e}")
                 return Responses.not_found_err(e.message)
-
+            
+            except ObjectAlreadyExists as e:
+                logging.error(f"Объект уже существует: {e}")
+                return Responses.already_exists(e.message)
+        
             except InitialError as e:
-                logging.error(f"Инициализационная ошибка: {e}")
+                logging.error(f"Инициализационная ошибка: {e.message}")
                 return Responses.initial_err(e.message)
 
             except Exception as e:
